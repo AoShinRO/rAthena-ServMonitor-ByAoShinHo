@@ -1,0 +1,22 @@
+﻿<Window x:Class="AoShinhoServ_Monitor.Forms.Logs"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AoShinhoServ_Monitor.Forms"
+        mc:Ignorable="d"
+        Title="Logs" Height="500" Width="800" WindowStartupLocation="CenterScreen" WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+    <Grid>
+        <Rectangle HorizontalAlignment="Left" Height="462" Margin="-2,8,0,0" Stroke="Black" VerticalAlignment="Top" Width="762" Fill="AntiqueWhite" RadiusX="10" RadiusY="10"/>
+        <Button x:Name="CloseLog" Content="Close" HorizontalAlignment="Left" Height="40" Margin="382,421,0,0" VerticalAlignment="Top" Width="368" Click="CloseLog_Click" />
+        <Button x:Name="Save" Content="SaveTXT" HorizontalAlignment="Left" Height="40" Margin="8,421,0,0" VerticalAlignment="Top" Width="368" Click="Save_Click" />
+        <RichTextBox x:Name="LogsRTB" Margin="0,9,41,88">
+            <FlowDocument LineHeight="1">
+                <Paragraph>
+                    <Run Text="RichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+
+    </Grid>
+</Window>

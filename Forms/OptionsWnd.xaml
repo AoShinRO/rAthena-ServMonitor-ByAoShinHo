@@ -1,0 +1,53 @@
+﻿<Window x:Class="AoShinhoServ_Monitor.Forms.OptionsWnd"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AoShinhoServ_Monitor.Forms"
+        xmlns:properties="clr-namespace:AoShinhoServ_Monitor.Properties"
+        mc:Ignorable="d"
+        Title="OptionsWnd" Height="220" Width="270" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" Background="Transparent">
+    <Grid>
+        <Rectangle Fill="AntiqueWhite" RadiusX="10" RadiusY="10" HorizontalAlignment="Left" Height="195" Margin="2,1,0,0" Stroke="Black" VerticalAlignment="Top" Width="245"/>
+        <Grid x:Name="OkayGrid" Margin="-48,133,36,-1">
+            <Rectangle x:Name="Okay_Button" HorizontalAlignment="Left" Height="40" Margin="55,15,0,0" VerticalAlignment="Top" Width="112" RadiusY="5" RadiusX="5">
+                <Rectangle.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFFF9D58" />
+                        <GradientStop Color="#FFA46234" Offset="1" />
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+                <Rectangle.Effect>
+                    <DropShadowEffect Opacity="0.3" ShadowDepth="2.6" BlurRadius="3" />
+                </Rectangle.Effect>
+            </Rectangle>
+            <Label x:Name="Okaylbl" Content="    Okay" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="55,15,0,0" VerticalAlignment="Top" Height="40" Width="112" MouseDown="Okaylbl_MouseDown" />
+        </Grid>
+        <Grid x:Name="CancelGrid" Margin="72,133,-84,-1">
+            <Rectangle x:Name="Cancel" HorizontalAlignment="Left" Height="40" Margin="55,15,0,0" VerticalAlignment="Top" Width="112" RadiusY="5" RadiusX="5">
+                <Rectangle.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFFF9D58" />
+                        <GradientStop Color="#FFA46234" Offset="1" />
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+                <Rectangle.Effect>
+                    <DropShadowEffect Opacity="0.3" ShadowDepth="2.6" BlurRadius="3" />
+                </Rectangle.Effect>
+            </Rectangle>
+            <Label x:Name="Cancellbl" Content="   Cancel" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="55,15,0,0" VerticalAlignment="Top" Height="40" Width="112" MouseDown="Cancellbl_MouseDown" />
+        </Grid>
+        <Button x:Name="LoginExePath" Content="..." HorizontalAlignment="Left" Margin="217,15,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="LoginExePath_Click"/>
+        <TextBox x:Name="LoginPath" HorizontalAlignment="Left" Margin="40,15,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=LoginPath}" VerticalAlignment="Top" Width="174"/>
+        <Label Content="Login:" HorizontalAlignment="Left" Margin="0,11,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="CharExePath" Content="..." HorizontalAlignment="Left" Margin="217,42,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="CharExePath_Click"/>
+        <TextBox x:Name="CharPath" HorizontalAlignment="Left" Margin="40,42,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=CharPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
+        <Label Content="Char:" HorizontalAlignment="Left" Margin="2,38,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="MapExePath" Content="..." HorizontalAlignment="Left" Margin="217,68,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="MapExePath_Click" />
+        <TextBox x:Name="MapPath" HorizontalAlignment="Left" Margin="40,68,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=MapPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
+        <Label Content="Map:" HorizontalAlignment="Left" Margin="2,64,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="WebExePath" Content="..." HorizontalAlignment="Left" Margin="217,94,0,0" VerticalAlignment="Top" Height="18" Width="23"  Click="WebExePath_Click" />
+        <TextBox x:Name="WebPath" HorizontalAlignment="Left" Margin="40,94,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=WebPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
+        <Label Content="Web:" HorizontalAlignment="Left" Margin="2,90,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Window>
