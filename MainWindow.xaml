@@ -100,7 +100,7 @@
         <TextBlock x:Name="lb_online" FontSize="50" Foreground="White" HorizontalAlignment="Left" Margin="129,27,0,0" TextWrapping="NoWrap" Text="0" TextAlignment="Center" VerticalAlignment="Top" Height="64" Width="54" />
         <TextBlock FontSize="15" Foreground="White" HorizontalAlignment="Left" Margin="137,83,0,0" TextWrapping="NoWrap" Text="online" VerticalAlignment="Top" Height="20" Width="49" />
         <Button x:Name="ShowLogsBtn" Content="Logs" HorizontalAlignment="Left" Margin="23,122,0,0" VerticalAlignment="Top" Width="181" Click="ShowLogsBtn_Click" />
-        <Label x:Name="xBtn" Content="X" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1155,0,0,0" VerticalAlignment="Top" MouseDown="xBtn_MouseDown" />
+        <Label x:Name="xBtn" Content="X" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1155,0,0,0" VerticalAlignment="Top" MouseDown="XBtn_MouseDown" />
         <Label x:Name="MinimizeBtn" Content="_" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1135,-2,0,0" VerticalAlignment="Top" MouseDown="MinimizeBtn_MouseDown" />
     </Grid>
 </Window>
