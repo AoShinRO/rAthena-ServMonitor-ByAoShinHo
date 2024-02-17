@@ -10,10 +10,11 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using ContextMenu = System.Windows.Forms.ContextMenu;
-using NotifyIcon = System.Windows.Forms.NotifyIcon;
-using MenuItem = System.Windows.Forms.MenuItem;
+using System.Windows.Media.Animation;
 using Application = System.Windows.Application;
+using ContextMenu = System.Windows.Forms.ContextMenu;
+using MenuItem = System.Windows.Forms.MenuItem;
+using NotifyIcon = System.Windows.Forms.NotifyIcon;
 
 namespace AoShinhoServ_Monitor
 {
@@ -25,7 +26,9 @@ namespace AoShinhoServ_Monitor
         public MainWindow()
         {
             InitializeComponent();
+            InitializeConfigComponent();
             InitializeNotifyIcon();
+            GetButtonPosition();
         }
 
         #region structing vars
@@ -38,6 +41,12 @@ namespace AoShinhoServ_Monitor
         public int debugmsgcount;
         public int onlinecount;
         public Point p;
+        public Thickness StartMargin;
+        public Thickness StopMargin;
+        public Thickness OptionMargin;
+        public Thickness RestartMargin;
+        public Thickness OptionSaveMargin;
+        public Thickness OptionCancelMargin;
         public bool IsDragging;
         public string LastErrorLog;
 
@@ -70,6 +79,30 @@ namespace AoShinhoServ_Monitor
         #endregion structing vars
 
         #region CoreFunctions
+
+        #region AnimationFunctions
+
+        private void GetButtonPosition()
+        {
+            StartMargin = StartGrid.Margin;
+            StopMargin = StopGrid.Margin;
+            OptionMargin = OptGrid.Margin;
+            RestartMargin = RestartGrid.Margin;
+            OptionCancelMargin = OptWin.CancelGrid.Margin;
+            OptionSaveMargin = OptWin.OkayGrid.Margin;
+        }
+
+        private ThicknessAnimation F_Thickness_Animate(Thickness From, Thickness To, double Duration = 0.1)
+        {
+            ThicknessAnimation marginAnimation = new ThicknessAnimation();
+            marginAnimation.GetAnimationBaseValue(MarginProperty);
+            marginAnimation.From = From; // Valor inicial da margem
+            marginAnimation.To = To; // Valor final da margem
+            marginAnimation.Duration = TimeSpan.FromSeconds(Duration);
+            return marginAnimation;
+        }
+
+        #endregion AnimationFunctions
 
         public void Do_Clear_All()
         {
@@ -258,18 +291,39 @@ namespace AoShinhoServ_Monitor
 
         #region OptionWinRelated
 
-        private void OptionWin_MouseDown(object sender, MouseButtonEventArgs e)
+        private void InitializeConfigComponent()
         {
             OptWin.Okaylbl.MouseDown += OptionWin_Okay;
+            OptWin.Okaylbl.MouseEnter += OptionWin_Enter;
+            OptWin.Okaylbl.MouseLeave += OptionWin_Leave;
             OptWin.Cancellbl.MouseDown += OptionWin_Cancel;
-            OptWin.Show();
+            OptWin.Cancellbl.MouseEnter += OptionWin_Cancel_Enter;
+            OptWin.Cancellbl.MouseLeave += OptionWin_Cancel_Leave;
         }
+
+        private void OptionWin_MouseDown(object sender, MouseButtonEventArgs e) => OptWin.Show();
 
         private void OptionWin_Okay(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.Save();
             OptWin.Hide();
         }
+
+        private void OptionWin_Enter(object sender, RoutedEventArgs e) => OptWin.OkayGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(OptionSaveMargin,
+            new Thickness(OptionSaveMargin.Left + 1, OptionSaveMargin.Top + 1, OptionSaveMargin.Right, OptionSaveMargin.Bottom)));
+
+        private void OptionWin_Leave(object sender, RoutedEventArgs e) => OptWin.OkayGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(new Thickness(OptionSaveMargin.Left + 1, OptionSaveMargin.Top + 1, OptionSaveMargin.Right, OptionSaveMargin.Bottom),
+            OptionSaveMargin));
+
+        private void OptionWin_Cancel_Enter(object sender, RoutedEventArgs e) => OptWin.CancelGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(OptionCancelMargin,
+            new Thickness(OptionCancelMargin.Left + 1, OptionCancelMargin.Top + 1, OptionCancelMargin.Right, OptionCancelMargin.Bottom)));
+
+        private void OptionWin_Cancel_Leave(object sender, RoutedEventArgs e) => OptWin.CancelGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(new Thickness(OptionCancelMargin.Left + 1, OptionCancelMargin.Top + 1, OptionCancelMargin.Right, OptionCancelMargin.Bottom),
+            OptionCancelMargin));
 
         private void OptionWin_Cancel(object sender, RoutedEventArgs e) => OptWin.Hide();
 
@@ -764,6 +818,46 @@ namespace AoShinhoServ_Monitor
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) => Do_End();
+
+        private void StartBtn_MouseEnter(object sender, MouseEventArgs e) =>
+            StartGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(StartMargin,
+            new Thickness(StartMargin.Left + 1, StartMargin.Top + 1, StartMargin.Right, StartMargin.Bottom)));
+
+        private void StartBtn_MouseLeave(object sender, MouseEventArgs e) =>
+            StartGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(new Thickness(StartMargin.Left + 1, StartMargin.Top + 1, StartMargin.Right, StartMargin.Bottom),
+            StartMargin));
+
+        private void OptionWin_MouseEnter(object sender, MouseEventArgs e) =>
+            OptGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(OptionMargin,
+            new Thickness(OptionMargin.Left + 1, OptionMargin.Top + 1, OptionMargin.Right, OptionMargin.Bottom)));
+
+        private void OptionWin_MouseLeave(object sender, MouseEventArgs e) =>
+            OptGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(new Thickness(OptionMargin.Left + 1, OptionMargin.Top + 1, OptionMargin.Right, OptionMargin.Bottom),
+            OptionMargin));
+
+        private void StopBtn_MouseEnter(object sender, MouseEventArgs e) =>
+            StopGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(StopMargin,
+            new Thickness(StopMargin.Left + 1, StopMargin.Top + 1, StopMargin.Right, StopMargin.Bottom)));
+
+        private void StopBtn_MouseLeave(object sender, MouseEventArgs e) =>
+            StopGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(new Thickness(StopMargin.Left + 1, StopMargin.Top + 1, StopMargin.Right, StopMargin.Bottom),
+            StopMargin));
+
+        private void RestartBtn_MouseEnter(object sender, MouseEventArgs e) =>
+            RestartGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(RestartMargin,
+            new Thickness(RestartMargin.Left + 1, RestartMargin.Top + 1, RestartMargin.Right, RestartMargin.Bottom)));
+
+        private void RestartBtn_MouseLeave(object sender, MouseEventArgs e) =>
+            RestartGrid.BeginAnimation(MarginProperty,
+            F_Thickness_Animate(new Thickness(RestartMargin.Left + 1, RestartMargin.Top + 1, RestartMargin.Right, RestartMargin.Bottom),
+            RestartMargin));
 
         #endregion Btn_related
     }
