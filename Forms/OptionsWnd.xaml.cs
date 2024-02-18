@@ -53,11 +53,15 @@ namespace AoShinhoServ_Monitor.Forms
             bool? result = box.ShowDialog();
 
             if (result.HasValue && result.Value)
-            {
                 return box.FileName;
-            }
 
-            return "";
+            switch (type)
+            {
+                case SM.Login: return Properties.Settings.Default.LoginPath;
+                case SM.Char: return Properties.Settings.Default.CharPath;
+                case SM.Web: return Properties.Settings.Default.WebPath;
+                default: return Properties.Settings.Default.MapPath;
+            }
         }
 
         private void Okaylbl_MouseDown(object sender, MouseButtonEventArgs e)

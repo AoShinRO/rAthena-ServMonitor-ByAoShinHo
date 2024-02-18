@@ -371,7 +371,6 @@ namespace AoShinhoServ_Monitor
                 Visible = true,
                 Text = "Seu programa está na bandeja do sistema."
             };
-            // Manipulador de evento para restaurar a janela ao dar um clique duplo no ícone
             _notifyIcon.MouseDoubleClick += (sender, e) =>
             {
                 Show();
@@ -379,7 +378,6 @@ namespace AoShinhoServ_Monitor
                 WindowState = WindowState.Normal;
             };
 
-            // Adicione um menu de contexto para permitir opções adicionais ao clicar com o botão direito do mouse no ícone
             contextMenu.MenuItems.Add($"Online: {onlinecount}");
             contextMenu.MenuItems.Add($"Erro: {errormsgcount}");
             contextMenu.MenuItems.Add($"SQL: {sqlmsgcount}");
