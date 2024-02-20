@@ -26,9 +26,10 @@ namespace AoShinhoServ_Monitor
         public MainWindow()
         {
             InitializeComponent();
-            InitializeConfigComponent();
+            InitializeSubWinComponent();
             InitializeNotifyIcon();
             GetButtonPosition();
+            Do_White_Mode();
         }
 
         #region structing vars
@@ -49,6 +50,7 @@ namespace AoShinhoServ_Monitor
         public Thickness OptionCancelMargin;
         public bool IsDragging;
         public string LastErrorLog;
+        public bool OnOff;
 
         public struct ErrorLog
         {
@@ -69,7 +71,7 @@ namespace AoShinhoServ_Monitor
         public OptionsWnd OptWin = new OptionsWnd();
         public Logs LogWin = new Logs();
 
-        private struct ProcessData
+        public struct ProcessData
         {
             public string type;
             public string info;
@@ -155,7 +157,7 @@ namespace AoShinhoServ_Monitor
             KillAll(Procnamecfg(Properties.Settings.Default.MapPath));
         }
 
-        private async void Do_Run_All_Async() => await Task.Run(() => Do_Run_All());
+        public async void Do_Run_All_Async() => await Task.Run(() => Do_Run_All());
 
         public async Task Do_Run_All()
         {
@@ -171,7 +173,7 @@ namespace AoShinhoServ_Monitor
             }
         }
 
-        private Task RunWithRedirectAsync(string cmdPath)
+        public Task RunWithRedirectAsync(string cmdPath)
         {
             return Task.Run(() =>
             {
@@ -257,7 +259,7 @@ namespace AoShinhoServ_Monitor
             paragraph.Inlines.Add(typeRun);
 
             Run infoRun = new Run(info);
-            infoRun.Foreground = Brushes.White;
+            infoRun.Foreground = Properties.Settings.Default.WhiteMode ? Brushes.Black : Brushes.White;
             paragraph.Inlines.Add(infoRun);
             return paragraph;
         }
@@ -285,15 +287,33 @@ namespace AoShinhoServ_Monitor
                     return Brushes.Green;
 
                 default:
-                    return Brushes.White;
+                    {
+                        Brush color = Brushes.White;
+                        if (Properties.Settings.Default.WhiteMode)
+                            color = Brushes.Black;
+                        return color;
+                    }
             }
+        }
+
+        private void Do_Starting_Message()
+        {
+            Brush color = Brushes.White;
+            if (Properties.Settings.Default.WhiteMode)
+                color = Brushes.Black;
+
+            Do_Clear_All();
+            Login.Document.Blocks.Add(AppendColoredText("[Info] ", "Login Server is Waiting...", color));
+            Char.Document.Blocks.Add(AppendColoredText("[Info] ", "Char Server is Waiting...", color));
+            Map.Document.Blocks.Add(AppendColoredText("[Info] ", "Map Server is Waiting...", color));
+            Web.Document.Blocks.Add(AppendColoredText("[Info] ", "Web Server is Waiting...", color));
         }
 
         #endregion color
 
         #region OptionWinRelated
 
-        private void InitializeConfigComponent()
+        private void InitializeSubWinComponent()
         {
             OptWin.Okaylbl.MouseDown += OptionWin_Okay;
             OptWin.Okaylbl.MouseEnter += OptionWin_Enter;
@@ -301,6 +321,42 @@ namespace AoShinhoServ_Monitor
             OptWin.Cancellbl.MouseDown += OptionWin_Cancel;
             OptWin.Cancellbl.MouseEnter += OptionWin_Cancel_Enter;
             OptWin.Cancellbl.MouseLeave += OptionWin_Cancel_Leave;
+            OptWin.WhiteMode.Checked += OptionWin_Do_White_Mode;
+            OptWin.WhiteMode.Unchecked += OptionWin_Do_White_Mode;
+            LogWin.CloseLog.Click += LogWin_Cancel;
+            LogWin.Save.Click += LogWin_Save;
+        }
+
+        private void OptionWin_Do_White_Mode(object sender, RoutedEventArgs e) => Do_White_Mode();
+
+        private void Do_White_Mode()
+        {
+            if (Properties.Settings.Default.WhiteMode)
+            {
+                Map.Background = Brushes.White;
+                MapP.Foreground = Brushes.Black;
+                Char.Background = Brushes.White;
+                CharP.Foreground = Brushes.Black;
+                Login.Background = Brushes.White;
+                LoginP.Foreground = Brushes.Black;
+                Web.Background = Brushes.White;
+                WebP.Foreground = Brushes.Black;
+                if (!OnOff)
+                    Do_Starting_Message();
+
+                return;
+            }
+
+            Map.Background = Brushes.Black;
+            MapP.Foreground = Brushes.White;
+            Char.Background = Brushes.Black;
+            CharP.Foreground = Brushes.White;
+            Login.Background = Brushes.Black;
+            LoginP.Foreground = Brushes.White;
+            Web.Background = Brushes.Black;
+            WebP.Foreground = Brushes.White;
+            if (!OnOff)
+                Do_Starting_Message();
         }
 
         private void OptionWin_MouseDown(object sender, MouseButtonEventArgs e) => OptWin.Show();
@@ -450,8 +506,6 @@ namespace AoShinhoServ_Monitor
             {
                 thisdata.type = e.Data.Substring(0, endIndex + 1);
                 thisdata.info = e.Data.Substring(endIndex + 1);
-                if (thisdata.info.Contains("set users"))
-                    thisdata.type = "[Users]";
                 LastErrorLog = thisdata.type;
             }
             else
@@ -462,6 +516,19 @@ namespace AoShinhoServ_Monitor
                     Add_ErrorLog(thisdata.type, thisdata.info);
             }
 
+            if (e.Data.Contains("set users"))
+            {
+                thisdata.type = "[Users]";
+                string[] playercount = e.Data.Split(new Char[] { ':' });
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    lb_online.Text = playercount[2];
+                    onlinecount = int.Parse(lb_online.Text);
+                });
+            }
+
+            thisdata.Color = GetMessageTypeColor(thisdata.type);
+
             #endregion preprocessinginfo
 
             #region SwitchProcess
@@ -469,190 +536,62 @@ namespace AoShinhoServ_Monitor
             switch (Get_process_num(((Process)sender).ProcessName.ToLowerInvariant()))
             {
                 case MonitorType.LOGIN:
-
-                    #region Login
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        switch (thisdata.type)
-                        {
-                            case "[Error]":
-                                errormsgcount++;
-                                lb_error.Text = "Error: " + errormsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Debug]":
-                                debugmsgcount++;
-                                lb_debug.Text = "Debug: " + debugmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[SQL]":
-                                sqlmsgcount++;
-                                lb_sql.Text = "SQL: " + sqlmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Warning]":
-                                warningmsgcount++;
-                                lb_warning.Text = "Warning: " + warningmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Users]":
-                                {
-                                    string[] playercount = e.Data.Split(new Char[] { ':' });
-                                    lb_online.Text = playercount[2];
-                                    onlinecount = int.Parse(lb_online.Text);
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                        thisdata.Color = GetMessageTypeColor(thisdata.type);
-                        Login.Document.Blocks.Add(AppendColoredText($"{thisdata.type} ", $"{thisdata.info}", thisdata.Color));
-                    });
-
-                    #endregion Login
-
+                    Proc_Data2Box(Login, thisdata);
                     break;
 
                 case MonitorType.CHAR:
-
-                    #region Char
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        switch (thisdata.type)
-                        {
-                            case "[Error]":
-                                errormsgcount++;
-                                lb_error.Text = "Error: " + errormsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Debug]":
-                                debugmsgcount++;
-                                lb_debug.Text = "Debug: " + debugmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[SQL]":
-                                sqlmsgcount++;
-                                lb_sql.Text = "SQL: " + sqlmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Warning]":
-                                warningmsgcount++;
-                                lb_warning.Text = "Warning: " + warningmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            default:
-                                break;
-                        }
-                        thisdata.Color = GetMessageTypeColor(thisdata.type);
-                        Char.Document.Blocks.Add(AppendColoredText($"{thisdata.type} ", $"{thisdata.info}", thisdata.Color));
-                    });
-
-                    #endregion Char
-
+                    Proc_Data2Box(Char, thisdata);
                     break;
 
                 case MonitorType.WEB:
-
-                    #region Web
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        switch (thisdata.type)
-                        {
-                            case "[Error]":
-                                errormsgcount++;
-                                lb_error.Text = "Error: " + errormsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Debug]":
-                                debugmsgcount++;
-                                lb_debug.Text = "Debug: " + debugmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[SQL]":
-                                sqlmsgcount++;
-                                lb_sql.Text = "SQL: " + sqlmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Warning]":
-                                warningmsgcount++;
-                                lb_warning.Text = "Warning: " + warningmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            default:
-                                break;
-                        }
-                        thisdata.Color = GetMessageTypeColor(thisdata.type);
-                        Web.Document.Blocks.Add(AppendColoredText($"{thisdata.type} ", $"{thisdata.info}", thisdata.Color));
-                    });
-
-                    #endregion Web
-
+                    Proc_Data2Box(Web, thisdata);
                     break;
 
                 default:
-
-                    #region Map
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        switch (thisdata.type)
-                        {
-                            case "[Error]":
-                                errormsgcount++;
-                                lb_error.Text = "Error: " + errormsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Debug]":
-                                debugmsgcount++;
-                                lb_debug.Text = "Debug: " + debugmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[SQL]":
-                                sqlmsgcount++;
-                                lb_sql.Text = "SQL: " + sqlmsgcount;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                break;
-
-                            case "[Warning]":
-                                warningmsgcount++;
-                                Add_ErrorLog(thisdata.type, thisdata.info);
-                                lb_warning.Text = "Warning: " + warningmsgcount;
-
-                                break;
-
-                            default:
-                                break;
-                        }
-                        thisdata.Color = GetMessageTypeColor(thisdata.type);
-                        Map.Document.Blocks.Add(AppendColoredText($"{thisdata.type} ", $"{thisdata.info}", thisdata.Color));
-                    });
-
-                    #endregion Map
-
+                    Proc_Data2Box(Map, thisdata);
                     break;
             }
 
             #endregion SwitchProcess
 
             UpdateContextMenu();
+        }
+
+        public void Proc_Data2Box(RichTextBox box, ProcessData thisdata)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                switch (thisdata.type)
+                {
+                    case "[Error]":
+                        errormsgcount++;
+                        lb_error.Text = "Error: " + errormsgcount;
+                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        break;
+
+                    case "[Debug]":
+                        debugmsgcount++;
+                        lb_debug.Text = "Debug: " + debugmsgcount;
+                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        break;
+
+                    case "[SQL]":
+                        sqlmsgcount++;
+                        lb_sql.Text = "SQL: " + sqlmsgcount;
+                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        break;
+
+                    case "[Warning]":
+                        warningmsgcount++;
+                        lb_warning.Text = "Warning: " + warningmsgcount;
+                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        break;
+
+                    default:
+                        break;
+                }
+                box.Document.Blocks.Add(AppendColoredText($"{thisdata.type} ", $"{thisdata.info}", thisdata.Color));
+            });
         }
 
         public void Proc_HasExited(object sender, EventArgs e)
@@ -736,6 +675,7 @@ namespace AoShinhoServ_Monitor
                 catch { }
                 finally
                 {
+                    OnOff = true;
                     StartGrid.Visibility = Visibility.Collapsed;
                     RestartGrid.Visibility = Visibility.Visible;
                 }
@@ -763,6 +703,7 @@ namespace AoShinhoServ_Monitor
         private void StopBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Do_Kill_All();
+            OnOff = false;
             StartGrid.Visibility = Visibility.Visible;
             RestartGrid.Visibility = Visibility.Collapsed;
         }
@@ -774,8 +715,6 @@ namespace AoShinhoServ_Monitor
             {
                 LogWin.LogsRTB.AppendText(Environment.NewLine + $"{log.Type} {log.Content}");
             }
-            LogWin.CloseLog.Click += LogWin_Cancel;
-            LogWin.Save.Click += LogWin_Save;
             LogWin.Show();
         }
 

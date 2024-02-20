@@ -49,5 +49,6 @@
         <Button x:Name="WebExePath" Content="..." HorizontalAlignment="Left" Margin="217,94,0,0" VerticalAlignment="Top" Height="18" Width="23"  Click="WebExePath_Click" />
         <TextBox x:Name="WebPath" HorizontalAlignment="Left" Margin="40,94,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=WebPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
         <Label Content="Web:" HorizontalAlignment="Left" Margin="2,90,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="WhiteMode" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode[Need Restart]" HorizontalAlignment="Left" Margin="14,124,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
     </Grid>
 </Window>

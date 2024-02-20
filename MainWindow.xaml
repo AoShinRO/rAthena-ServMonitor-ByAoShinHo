@@ -66,29 +66,29 @@
         </Grid>
         <RichTextBox x:Name="Map" Margin="228,28,442,27" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph Margin="0">
+                <Paragraph x:Name="MapP" Margin="0">
                     <Run Text="Map Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
         <RichTextBox x:Name="Login" Margin="764,212,37,210" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph Margin="0">
+                <Paragraph x:Name="LoginP" Margin="0">
                     <Run Text="Login Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
         <RichTextBox x:Name="Char" Margin="764,27,37,395" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph Margin="0">
+                <Paragraph x:Name="CharP" Margin="0">
                     <Run Text="Char Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
         <RichTextBox x:Name="Web" Margin="764,395,37,27" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph Margin="0">
-                    <Run Text="Web Server is Waiting..." Foreground="White" />
+                <Paragraph x:Name="WebP" Margin="0">
+                    <Run Text="Web Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>

@@ -70,5 +70,17 @@ namespace AoShinhoServ_Monitor.Properties {
                 this["WebPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WhiteMode {
+            get {
+                return ((bool)(this["WhiteMode"]));
+            }
+            set {
+                this["WhiteMode"] = value;
+            }
+        }
     }
 }

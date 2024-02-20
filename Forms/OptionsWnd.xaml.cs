@@ -71,6 +71,13 @@ namespace AoShinhoServ_Monitor.Forms
         private void Cancellbl_MouseDown(object sender, MouseButtonEventArgs e)
         {
         }
+        private void WhiteMode_Checked(object sender, RoutedEventArgs e)
+        {           
+        }
+
+        private void WhiteMode_Unchecked(object sender, RoutedEventArgs e)
+        {
+        }
 
         private void MapExePath_Click(object sender, RoutedEventArgs e)
         {
@@ -101,5 +108,7 @@ namespace AoShinhoServ_Monitor.Forms
         }
 
         #endregion Btn_Related
+
+
     }
 }
