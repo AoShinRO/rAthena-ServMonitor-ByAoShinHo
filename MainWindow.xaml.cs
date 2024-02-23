@@ -161,7 +161,7 @@ namespace AoShinhoServ_Monitor
         public void Do_Run_All()
         {
             try
-            {                
+            {
                 RunWithRedirect(Properties.Settings.Default.LoginPath);
                 RunWithRedirect(Properties.Settings.Default.CharPath);
                 RunWithRedirect(Properties.Settings.Default.WebPath);
@@ -524,7 +524,7 @@ namespace AoShinhoServ_Monitor
                             onlinecount = int.Parse(lb_online.Text);
                         });
                     }
-                    if(Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
+                    if (Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
                         return;
 
                     break;
@@ -603,27 +603,32 @@ namespace AoShinhoServ_Monitor
 
         public void Proc_HasExited(object sender, EventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            try
             {
-                switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    case MonitorType.LOGIN:
-                        Login.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
-                        break;
+                    switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
+                    {
+                        case MonitorType.LOGIN:
+                            Login.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
+                            break;
 
-                    case MonitorType.CHAR:
-                        Char.AppendText(Environment.NewLine + ">>Char Server - stopped<<");
-                        break;
+                        case MonitorType.CHAR:
+                            Char.AppendText(Environment.NewLine + ">>Char Server - stopped<<");
+                            break;
 
-                    case MonitorType.WEB:
-                        Web.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
-                        break;
+                        case MonitorType.WEB:
+                            Web.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
+                            break;
 
-                    default:
-                        Map.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
-                        break;
-                }
-            });
+                        default:
+                            Map.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
+                            break;
+                    }
+                });
+            }
+            catch
+            { }
         }
 
         #endregion ProcesingInfo
