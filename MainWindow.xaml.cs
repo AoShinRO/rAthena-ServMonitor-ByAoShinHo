@@ -49,7 +49,6 @@ namespace AoShinhoServ_Monitor
         public Thickness OptionSaveMargin;
         public Thickness OptionCancelMargin;
         public bool IsDragging;
-        public string LastErrorLog;
         public bool OnOff;
 
         public struct ErrorLog
@@ -77,6 +76,8 @@ namespace AoShinhoServ_Monitor
             public string info;
             public Brush Color;
         }
+
+        public ProcessData LastErrorLog;
 
         #endregion structing vars
 
@@ -157,31 +158,27 @@ namespace AoShinhoServ_Monitor
             KillAll(Procnamecfg(Properties.Settings.Default.MapPath));
         }
 
-        public async void Do_Run_All_Async() => await Task.Run(() => Do_Run_All());
-
-        public async Task Do_Run_All()
+        public void Do_Run_All()
         {
             try
-            {
-                await RunWithRedirectAsync(Properties.Settings.Default.MapPath);
-                await RunWithRedirectAsync(Properties.Settings.Default.LoginPath);
-                await RunWithRedirectAsync(Properties.Settings.Default.CharPath);
-                await RunWithRedirectAsync(Properties.Settings.Default.WebPath);
+            {                
+                RunWithRedirect(Properties.Settings.Default.LoginPath);
+                RunWithRedirect(Properties.Settings.Default.CharPath);
+                RunWithRedirect(Properties.Settings.Default.WebPath);
+                RunWithRedirect(Properties.Settings.Default.MapPath);
             }
             catch
             {
             }
         }
 
-        public Task RunWithRedirectAsync(string cmdPath)
+        public void RunWithRedirect(string cmdPath)
         {
-            return Task.Run(() =>
+            try
             {
-                try
+                Process process = new Process()
                 {
-                    Process process = new Process()
-                    {
-                        StartInfo =
+                    StartInfo =
                         {
                             FileName = cmdPath,
                             UseShellExecute = false,
@@ -189,22 +186,21 @@ namespace AoShinhoServ_Monitor
                             RedirectStandardOutput = true,
                             RedirectStandardError = true
                         },
-                        EnableRaisingEvents = true
-                    };
+                    EnableRaisingEvents = true
+                };
 
-                    process.StartInfo.CreateNoWindow = true;
-                    process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
-                    process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
-                    process.Exited += new EventHandler(Proc_HasExited);
-                    process.Start();
-                    process.BeginErrorReadLine();
-                    process.BeginOutputReadLine();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message + "\n\n" + ex.StackTrace);
-                }
-            });
+                process.StartInfo.CreateNoWindow = true;
+                process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
+                process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
+                process.Exited += new EventHandler(Proc_HasExited);
+                process.Start();
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n\n" + ex.StackTrace);
+            }
         }
 
         public string Procnamecfg(string cfgname) => Path.GetFileNameWithoutExtension(cfgname);
@@ -506,28 +502,39 @@ namespace AoShinhoServ_Monitor
             {
                 thisdata.type = e.Data.Substring(0, endIndex + 1);
                 thisdata.info = e.Data.Substring(endIndex + 1);
-                LastErrorLog = thisdata.type;
             }
             else
             {
                 thisdata.type = "";
                 thisdata.info = e.Data;
-                if (LastErrorLog == "[Error]")
+                if (LastErrorLog.type == "[Error]")
                     Add_ErrorLog(thisdata.type, thisdata.info);
             }
 
-            if (e.Data.Contains("set users"))
+            switch (thisdata.type)
             {
-                thisdata.type = "[Users]";
-                string[] playercount = e.Data.Split(new Char[] { ':' });
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    lb_online.Text = playercount[2];
-                    onlinecount = int.Parse(lb_online.Text);
-                });
+                case "[Status]":
+                    if (e.Data.Contains("set users"))
+                    {
+                        thisdata.type = "[Users]";
+                        string[] playercount = e.Data.Split(new Char[] { ':' });
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            lb_online.Text = playercount[2];
+                            onlinecount = int.Parse(lb_online.Text);
+                        });
+                    }
+                    if(Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
+                        return;
+
+                    break;
+
+                default: break;
             }
 
             thisdata.Color = GetMessageTypeColor(thisdata.type);
+
+            LastErrorLog = thisdata;
 
             #endregion preprocessinginfo
 
@@ -670,7 +677,7 @@ namespace AoShinhoServ_Monitor
                     {
                     }
                     Do_Clear_All();
-                    Do_Run_All_Async();
+                    Do_Run_All();
                 }
                 catch { }
                 finally

@@ -38,17 +38,18 @@
             <Label x:Name="Cancellbl" Content="   Cancel" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="55,15,0,0" VerticalAlignment="Top" Height="40" Width="112" MouseDown="Cancellbl_MouseDown" />
         </Grid>
         <Button x:Name="LoginExePath" Content="..." HorizontalAlignment="Left" Margin="217,15,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="LoginExePath_Click"/>
-        <TextBox x:Name="LoginPath" HorizontalAlignment="Left" Margin="40,15,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=LoginPath}" VerticalAlignment="Top" Width="174"/>
+        <TextBox x:Name="LoginPath" ToolTip="Your Login Path Here" HorizontalAlignment="Left" Margin="40,15,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=LoginPath}" VerticalAlignment="Top" Width="174"/>
         <Label Content="Login:" HorizontalAlignment="Left" Margin="0,11,0,0" VerticalAlignment="Top"/>
         <Button x:Name="CharExePath" Content="..." HorizontalAlignment="Left" Margin="217,42,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="CharExePath_Click"/>
-        <TextBox x:Name="CharPath" HorizontalAlignment="Left" Margin="40,42,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=CharPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
+        <TextBox x:Name="CharPath" ToolTip="Your Char Path Here" HorizontalAlignment="Left" Margin="40,42,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=CharPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
         <Label Content="Char:" HorizontalAlignment="Left" Margin="2,38,0,0" VerticalAlignment="Top"/>
         <Button x:Name="MapExePath" Content="..." HorizontalAlignment="Left" Margin="217,68,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="MapExePath_Click" />
-        <TextBox x:Name="MapPath" HorizontalAlignment="Left" Margin="40,68,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=MapPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
+        <TextBox x:Name="MapPath" ToolTip="Your Map Path Here" HorizontalAlignment="Left" Margin="40,68,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=MapPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
         <Label Content="Map:" HorizontalAlignment="Left" Margin="2,64,0,0" VerticalAlignment="Top"/>
         <Button x:Name="WebExePath" Content="..." HorizontalAlignment="Left" Margin="217,94,0,0" VerticalAlignment="Top" Height="18" Width="23"  Click="WebExePath_Click" />
-        <TextBox x:Name="WebPath" HorizontalAlignment="Left" Margin="40,94,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=WebPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
+        <TextBox x:Name="WebPath" ToolTip="Your Web Path Here" HorizontalAlignment="Left" Margin="40,94,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=WebPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
         <Label Content="Web:" HorizontalAlignment="Left" Margin="2,90,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="WhiteMode" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode[Need Restart]" HorizontalAlignment="Left" Margin="14,124,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
+        <CheckBox x:Name="WhiteMode" ToolTip="Change Text Box Collors" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode[Need Restart]" HorizontalAlignment="Left" Margin="14,115,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
+        <CheckBox x:Name="Debug" ToolTip="Ignore Loading Messages[More Faster Output]" IsChecked="{Binding DebugMode, Source={x:Static properties:Settings.Default}}" Content="#undef Detailed Loading Output" HorizontalAlignment="Left" Margin="14,131,0,0" VerticalAlignment="Top" />
     </Grid>
 </Window>
