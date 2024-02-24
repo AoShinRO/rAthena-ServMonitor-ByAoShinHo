@@ -34,50 +34,47 @@ namespace AoShinhoServ_Monitor
 
         #region structing vars
 
-        private NotifyIcon _notifyIcon;
-        private readonly ContextMenu contextMenu = new ContextMenu();
-        public short errormsgcount;
-        public short sqlmsgcount;
-        public short warningmsgcount;
-        public short debugmsgcount;
-        public short onlinecount;
-        public Point p;
-        public Thickness StartMargin;
-        public Thickness StopMargin;
-        public Thickness OptionMargin;
-        public Thickness RestartMargin;
-        public Thickness OptionSaveMargin;
-        public Thickness OptionCancelMargin;
-        public bool IsDragging;
-        public bool OnOff;
+        public enum rAthena
+        {
+            Map,
+            Login,
+            Char,
+            Web
+        };
 
-        public struct ErrorLog
+        public struct rAthenaError
         {
             public string Type;
             public string Content;
         }
 
-        private readonly List<ErrorLog> errorLogs = new List<ErrorLog>();
-
-        public enum MonitorType
-        {
-            LOGIN,
-            CHAR,
-            MAP,
-            WEB
-        };
-
-        public OptionsWnd OptWin = new OptionsWnd();
-        public Logs LogWin = new Logs();
-
-        public struct ProcessData
+        public struct rAthenaData
         {
             public string type;
             public string info;
             public Brush Color;
         }
 
-        public ProcessData LastErrorLog;
+        private NotifyIcon _notifyIcon;
+        private readonly ContextMenu trayMenu = new ContextMenu();
+        public short errormsgcount;
+        public short sqlmsgcount;
+        public short warningmsgcount;
+        public short debugmsgcount;
+        public short onlinecount;
+        public bool OnOff;
+        public bool IsDragging;
+        public Point MousePosition;
+        public Thickness StartMargin;
+        public Thickness StopMargin;
+        public Thickness OptionMargin;
+        public Thickness RestartMargin;
+        public Thickness OptionSaveMargin;
+        public Thickness OptionCancelMargin;
+        private readonly List<rAthenaError> errorLogs = new List<rAthenaError>();
+        public rAthenaData LastErrorLog;
+        public OptionsWnd OptWin = new OptionsWnd();
+        public Logs LogWin = new Logs();
 
         #endregion structing vars
 
@@ -168,10 +165,10 @@ namespace AoShinhoServ_Monitor
         {
             try
             {
+                Task.Run(() => RunWithRedirect(Properties.Settings.Default.MapPath));
                 Task.Run(() => RunWithRedirect(Properties.Settings.Default.LoginPath));
                 Task.Run(() => RunWithRedirect(Properties.Settings.Default.CharPath));
-                Task.Run(() => RunWithRedirect(Properties.Settings.Default.WebPath));
-                Task.Run(() => RunWithRedirect(Properties.Settings.Default.MapPath));
+                Task.Run(() => RunWithRedirect(Properties.Settings.Default.WebPath));                
             }
             catch
             {
@@ -211,31 +208,31 @@ namespace AoShinhoServ_Monitor
 
         public string Procnamecfg(string cfgname) => Path.GetFileNameWithoutExtension(cfgname);
 
-        public MonitorType Get_process_num(string Processname)
+        public rAthena Get_process_num(string Processname)
         {
-            MonitorType type = MonitorType.MAP;
+            rAthena type = rAthena.Map;
             Dictionary<string, Action> actions = new Dictionary<string, Action>();
 
             #region filldictionary
 
             actions.Add(Procnamecfg(Properties.Settings.Default.LoginPath).ToLowerInvariant(), () =>
             {
-                type = MonitorType.LOGIN;
+                type = rAthena.Login;
             });
 
             actions.Add(Procnamecfg(Properties.Settings.Default.CharPath).ToLowerInvariant(), () =>
             {
-                type = MonitorType.CHAR;
+                type = rAthena.Char;
             });
 
             actions.Add(Procnamecfg(Properties.Settings.Default.WebPath).ToLowerInvariant(), () =>
             {
-                type = MonitorType.WEB;
+                type = rAthena.Web;
             });
 
             actions.Add(Procnamecfg(Properties.Settings.Default.MapPath).ToLowerInvariant(), () =>
             {
-                type = MonitorType.MAP;
+                type = rAthena.Map;
             });
 
             #endregion filldictionary
@@ -328,14 +325,16 @@ namespace AoShinhoServ_Monitor
             Brush Foreground = WhiteModeColor();
             Brush Background = WhiteModeColor(true);
 
-            Map.Background = Background;
-            MapP.Foreground = Foreground;
-            Char.Background = Background;
-            CharP.Foreground = Foreground;
-            Login.Background = Background;
-            LoginP.Foreground = Foreground;
+            Map.Background =
+            Char.Background =
+            Login.Background =
             Web.Background = Background;
-            WebP.Foreground = Foreground;
+
+            WebP.Foreground =
+            LoginP.Foreground =
+            CharP.Foreground =
+            MapP.Foreground = Foreground;
+
             if (!OnOff)
                 Do_Starting_Message();
         }
@@ -388,7 +387,7 @@ namespace AoShinhoServ_Monitor
 
         private void Add_ErrorLog(string type, string content)
         {
-            errorLogs.Add(new ErrorLog { Type = type, Content = content });
+            errorLogs.Add(new rAthenaError { Type = type, Content = content });
             Task.Run(() => UpdateContextMenu());
         }
 
@@ -411,29 +410,29 @@ namespace AoShinhoServ_Monitor
                 WindowState = WindowState.Normal;
             };
 
-            contextMenu.MenuItems.Add($"Online: {onlinecount}");
-            contextMenu.MenuItems.Add($"Erro: {errormsgcount}");
-            contextMenu.MenuItems.Add($"SQL: {sqlmsgcount}");
-            contextMenu.MenuItems.Add($"Warning: {warningmsgcount}");
-            contextMenu.MenuItems.Add($"Debug: {debugmsgcount}");
+            trayMenu.MenuItems.Add($"Online: {onlinecount}");
+            trayMenu.MenuItems.Add($"Erro: {errormsgcount}");
+            trayMenu.MenuItems.Add($"SQL: {sqlmsgcount}");
+            trayMenu.MenuItems.Add($"Warning: {warningmsgcount}");
+            trayMenu.MenuItems.Add($"Debug: {debugmsgcount}");
 
-            contextMenu.MenuItems.Add("Restore", (sender, e) =>
+            trayMenu.MenuItems.Add("Restore", (sender, e) =>
             {
                 Show();
                 _notifyIcon.Visible = false;
                 WindowState = WindowState.Normal;
             });
-            contextMenu.MenuItems.Add("Close", (sender, e) =>
+            trayMenu.MenuItems.Add("Close", (sender, e) =>
             {
                 Close();
             });
             _notifyIcon.Visible = false;
-            _notifyIcon.ContextMenu = contextMenu;
+            _notifyIcon.ContextMenu = trayMenu;
         }
 
         private void UpdateContextMenu()
         {
-            foreach (MenuItem menuItem in contextMenu.MenuItems)
+            foreach (MenuItem menuItem in trayMenu.MenuItems)
             {
                 string[] menuItemTextParts = menuItem.Text.Split(':');
                 string variableName = menuItemTextParts[0];
@@ -461,7 +460,7 @@ namespace AoShinhoServ_Monitor
                 }
             }
 
-            _notifyIcon.ContextMenu = contextMenu;
+            _notifyIcon.ContextMenu = trayMenu;
         }
 
         #endregion tray
@@ -475,7 +474,7 @@ namespace AoShinhoServ_Monitor
 
             #region preprocessinginfo
 
-            ProcessData thisdata = new ProcessData();
+            rAthenaData thisdata = new rAthenaData();
 
             int endIndex = e.Data.IndexOf("]");
 
@@ -518,15 +517,15 @@ namespace AoShinhoServ_Monitor
 
             switch (Get_process_num(((Process)sender).ProcessName.ToLowerInvariant()))
             {
-                case MonitorType.LOGIN:
+                case rAthena.Login:
                     Proc_Data2Box(Login, thisdata);
                     break;
 
-                case MonitorType.CHAR:
+                case rAthena.Char:
                     Proc_Data2Box(Char, thisdata);
                     break;
 
-                case MonitorType.WEB:
+                case rAthena.Web:
                     Proc_Data2Box(Web, thisdata);
                     break;
 
@@ -538,40 +537,40 @@ namespace AoShinhoServ_Monitor
             #endregion SwitchProcess
         }
 
-        public void Proc_Data2Box(RichTextBox box, ProcessData thisdata)
+        public void Proc_Data2Box(RichTextBox box, rAthenaData message)
         {
             Application.Current.Dispatcher?.InvokeAsync(() =>
             {
-                switch (thisdata.type)
+                switch (message.type)
                 {
                     case "[Error]":
                         errormsgcount++;
                         lb_error.Text = "Error: " + errormsgcount;
-                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        Add_ErrorLog(message.type, message.info);
                         break;
 
                     case "[Debug]":
                         debugmsgcount++;
                         lb_debug.Text = "Debug: " + debugmsgcount;
-                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        Add_ErrorLog(message.type, message.info);
                         break;
 
                     case "[SQL]":
                         sqlmsgcount++;
                         lb_sql.Text = "SQL: " + sqlmsgcount;
-                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        Add_ErrorLog(message.type, message.info);
                         break;
 
                     case "[Warning]":
                         warningmsgcount++;
                         lb_warning.Text = "Warning: " + warningmsgcount;
-                        Add_ErrorLog(thisdata.type, thisdata.info);
+                        Add_ErrorLog(message.type, message.info);
                         break;
 
                     default:
                         break;
                 }
-                box.Document.Blocks.Add(AppendColoredText($"{thisdata.type} ", $"{thisdata.info}", thisdata.Color));
+                box.Document.Blocks.Add(AppendColoredText($"{message.type} ", $"{message.info}", message.Color));
             });
         }
 
@@ -581,15 +580,15 @@ namespace AoShinhoServ_Monitor
             {
                 switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
                 {
-                    case MonitorType.LOGIN:
+                    case rAthena.Login:
                         Login.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
                         break;
 
-                    case MonitorType.CHAR:
+                    case rAthena.Char:
                         Char.AppendText(Environment.NewLine + ">>Char Server - stopped<<");
                         break;
 
-                    case MonitorType.WEB:
+                    case rAthena.Web:
                         Web.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
                         break;
 
@@ -662,8 +661,8 @@ namespace AoShinhoServ_Monitor
             if (!IsDragging)
                 return;
             Point currentMousePoint = e.GetPosition(this);
-            double offsetX = currentMousePoint.X - p.X;
-            double offsetY = currentMousePoint.Y - p.Y;
+            double offsetX = currentMousePoint.X - MousePosition.X;
+            double offsetY = currentMousePoint.Y - MousePosition.Y;
 
             Left += offsetX;
             Top += offsetY;
@@ -697,7 +696,7 @@ namespace AoShinhoServ_Monitor
                 return;
 
             IsDragging = true;
-            p = e.GetPosition(this);
+            MousePosition = e.GetPosition(this);
         }
 
         private void BG_MouseUp(object sender, MouseButtonEventArgs e) => IsDragging = false;
