@@ -97,13 +97,21 @@ namespace AoShinhoServ_Monitor
         {
             ThicknessAnimation marginAnimation = new ThicknessAnimation();
             marginAnimation.GetAnimationBaseValue(MarginProperty);
-            marginAnimation.From = From; // Valor inicial da margem
-            marginAnimation.To = To; // Valor final da margem
+            marginAnimation.From = From;
+            marginAnimation.To = To;
             marginAnimation.Duration = TimeSpan.FromSeconds(Duration);
             return marginAnimation;
         }
 
         private Thickness F_Thickness_Pressed(Thickness thickness) => new Thickness(thickness.Left + 1, thickness.Top + 1, thickness.Right, thickness.Bottom);
+
+        private void F_Grid_Animate(Grid grid, Thickness thickness, bool enter = false)
+        {
+            if (enter)
+                grid.BeginAnimation(MarginProperty, F_Thickness_Animate(thickness, F_Thickness_Pressed(thickness)));
+            else
+                grid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(thickness), thickness));
+        }
 
         #endregion AnimationFunctions
 
@@ -152,20 +160,24 @@ namespace AoShinhoServ_Monitor
 
         public void Do_Kill_All()
         {
-            KillAll(Procnamecfg(Properties.Settings.Default.LoginPath));
-            KillAll(Procnamecfg(Properties.Settings.Default.CharPath));
-            KillAll(Procnamecfg(Properties.Settings.Default.WebPath));
-            KillAll(Procnamecfg(Properties.Settings.Default.MapPath));
+            try
+            {
+                KillAll(Procnamecfg(Properties.Settings.Default.LoginPath));
+                KillAll(Procnamecfg(Properties.Settings.Default.CharPath));
+                KillAll(Procnamecfg(Properties.Settings.Default.WebPath));
+                KillAll(Procnamecfg(Properties.Settings.Default.MapPath));
+            }
+            catch { }
         }
 
         public void Do_Run_All()
         {
             try
             {
-                RunWithRedirect(Properties.Settings.Default.LoginPath);
-                RunWithRedirect(Properties.Settings.Default.CharPath);
-                RunWithRedirect(Properties.Settings.Default.WebPath);
-                RunWithRedirect(Properties.Settings.Default.MapPath);
+                Task.Run(() => RunWithRedirect(Properties.Settings.Default.LoginPath));
+                Task.Run(() => RunWithRedirect(Properties.Settings.Default.CharPath));
+                Task.Run(() => RunWithRedirect(Properties.Settings.Default.WebPath));
+                Task.Run(() => RunWithRedirect(Properties.Settings.Default.MapPath));
             }
             catch
             {
@@ -409,7 +421,11 @@ namespace AoShinhoServ_Monitor
 
         private void LogWin_Cancel(object sender, RoutedEventArgs e) => LogWin.Hide();
 
-        private void Add_ErrorLog(string type, string content) => errorLogs.Add(new ErrorLog { Type = type, Content = content });
+        private void Add_ErrorLog(string type, string content)
+        {
+            errorLogs.Add(new ErrorLog { Type = type, Content = content });
+            Task.Run(() => UpdateContextMenu());
+        }
 
         #endregion LogWinRelated
 
@@ -421,7 +437,7 @@ namespace AoShinhoServ_Monitor
             {
                 Icon = Properties.Resources.Main_Icon, // Substitua "SeuIcone" pelo nome do seu ícone nos recursos
                 Visible = true,
-                Text = "Seu programa está na bandeja do sistema."
+                Text = "rAthena Server Monitor by AoShinHo."
             };
             _notifyIcon.MouseDoubleClick += (sender, e) =>
             {
@@ -502,6 +518,22 @@ namespace AoShinhoServ_Monitor
             {
                 thisdata.type = e.Data.Substring(0, endIndex + 1);
                 thisdata.info = e.Data.Substring(endIndex + 1);
+                if (thisdata.type == "[Status]")
+                {
+                    if (e.Data.Contains("set users"))
+                    {
+                        thisdata.type = "[Users]";
+                        string[] playercount = e.Data.Split(new Char[] { ':' });
+                        Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            lb_online.Text = playercount[2];
+                            onlinecount = int.Parse(lb_online.Text);
+                            Task.Run(() => UpdateContextMenu());
+                        });
+                    }
+                    else if (Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
+                        return;
+                }
             }
             else
             {
@@ -509,27 +541,6 @@ namespace AoShinhoServ_Monitor
                 thisdata.info = e.Data;
                 if (LastErrorLog.type == "[Error]")
                     Add_ErrorLog(thisdata.type, thisdata.info);
-            }
-
-            switch (thisdata.type)
-            {
-                case "[Status]":
-                    if (e.Data.Contains("set users"))
-                    {
-                        thisdata.type = "[Users]";
-                        string[] playercount = e.Data.Split(new Char[] { ':' });
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            lb_online.Text = playercount[2];
-                            onlinecount = int.Parse(lb_online.Text);
-                        });
-                    }
-                    if (Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
-                        return;
-
-                    break;
-
-                default: break;
             }
 
             thisdata.Color = GetMessageTypeColor(thisdata.type);
@@ -560,13 +571,11 @@ namespace AoShinhoServ_Monitor
             }
 
             #endregion SwitchProcess
-
-            UpdateContextMenu();
         }
 
         public void Proc_Data2Box(RichTextBox box, ProcessData thisdata)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 switch (thisdata.type)
                 {
@@ -605,7 +614,7 @@ namespace AoShinhoServ_Monitor
         {
             try
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
                     {
@@ -637,27 +646,24 @@ namespace AoShinhoServ_Monitor
 
         private static bool CheckServerPath()
         {
-            if (!File.Exists(Properties.Settings.Default.LoginPath) || Properties.Settings.Default.LoginPath == String.Empty)
-            {
-                MessageBox.Show($"File \"login -server.exe\" at \"{Properties.Settings.Default.LoginPath}\" is missing");
+            if (CheckMissingFile(Properties.Settings.Default.LoginPath, "login-server.exe") ||
+               CheckMissingFile(Properties.Settings.Default.CharPath, "char-server.exe") ||
+               CheckMissingFile(Properties.Settings.Default.WebPath, "web-server.exe") ||
+               CheckMissingFile(Properties.Settings.Default.MapPath, "map-server.exe"))
                 return false;
-            }
-            if (!File.Exists(Properties.Settings.Default.CharPath) || Properties.Settings.Default.CharPath == String.Empty)
-            {
-                MessageBox.Show($"File \"char-server.exe\" at \"{Properties.Settings.Default.CharPath}\" is missing");
-                return false;
-            }
-            if (!File.Exists(Properties.Settings.Default.MapPath) || Properties.Settings.Default.MapPath == String.Empty)
-            {
-                MessageBox.Show($"File \"map-server.exe\" at \"{Properties.Settings.Default.MapPath}\" is missing");
-                return false;
-            }
-            if (!File.Exists(Properties.Settings.Default.WebPath) || Properties.Settings.Default.WebPath == String.Empty)
-            {
-                MessageBox.Show($"File \"web-server.exe\" at \"{Properties.Settings.Default.WebPath}\" is missing");
-                return false;
-            }
+
             return true;
+        }
+
+        private static bool CheckMissingFile(string file, string mes)
+        {
+            if (!File.Exists(file) || file == String.Empty)
+            {
+                MessageBox.Show($"File \"{mes}\" at \"{file}\" is missing");
+                return true;
+            }
+
+            return false;
         }
 
         #endregion ValidatePathConfig
@@ -674,27 +680,18 @@ namespace AoShinhoServ_Monitor
                 }
                 try
                 {
-                    try
-                    {
-                        Do_Kill_All();
-                    }
-                    catch
-                    {
-                    }
-                    Do_Clear_All();
-                    Do_Run_All();
+                    Do_Kill_All();
                 }
                 catch { }
-                finally
-                {
-                    OnOff = true;
-                    StartGrid.Visibility = Visibility.Collapsed;
-                    RestartGrid.Visibility = Visibility.Visible;
-                }
+                Do_Clear_All();
+                Do_Run_All();
             }
-            catch (Exception ex)
+            catch { }
+            finally
             {
-                MessageBox.Show(ex.Message + "\n" + ex.StackTrace);
+                OnOff = true;
+                StartGrid.Visibility = Visibility.Collapsed;
+                RestartGrid.Visibility = Visibility.Visible;
             }
         }
 
@@ -714,7 +711,11 @@ namespace AoShinhoServ_Monitor
 
         private void StopBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Do_Kill_All();
+            try
+            {
+                Do_Kill_All();
+            }
+            catch { }
             OnOff = false;
             StartGrid.Visibility = Visibility.Visible;
             RestartGrid.Visibility = Visibility.Collapsed;
@@ -762,21 +763,25 @@ namespace AoShinhoServ_Monitor
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) => Do_End();
 
-        private void StartBtn_MouseEnter(object sender, MouseEventArgs e) => StartGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(StartMargin, F_Thickness_Pressed(StartMargin)));
+        #region btn_animation
 
-        private void StartBtn_MouseLeave(object sender, MouseEventArgs e) => StartGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(StartMargin), StartMargin));
+        private void StartBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(StartGrid, StartMargin, true);
 
-        private void OptionWin_MouseEnter(object sender, MouseEventArgs e) => OptGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(OptionMargin, F_Thickness_Pressed(OptionMargin)));
+        private void StartBtn_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(StartGrid, StartMargin);
 
-        private void OptionWin_MouseLeave(object sender, MouseEventArgs e) => OptGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(OptionMargin), OptionMargin));
+        private void OptionWin_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(OptGrid, OptionMargin, true);
 
-        private void StopBtn_MouseEnter(object sender, MouseEventArgs e) => StopGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(StopMargin, F_Thickness_Pressed(StopMargin)));
+        private void OptionWin_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(OptGrid, OptionMargin);
 
-        private void StopBtn_MouseLeave(object sender, MouseEventArgs e) => StopGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(StopMargin), StopMargin));
+        private void StopBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(StopGrid, StopMargin, true);
 
-        private void RestartBtn_MouseEnter(object sender, MouseEventArgs e) => RestartGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(RestartMargin, F_Thickness_Pressed(RestartMargin)));
+        private void StopBtn_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(StopGrid, StopMargin);
 
-        private void RestartBtn_MouseLeave(object sender, MouseEventArgs e) => RestartGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(RestartMargin), RestartMargin));
+        private void RestartBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(RestartGrid, RestartMargin, true);
+
+        private void RestartBtn_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(RestartGrid, RestartMargin);
+
+        #endregion btn_animation
 
         #endregion Btn_related
     }
