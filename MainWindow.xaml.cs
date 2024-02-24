@@ -35,12 +35,12 @@ namespace AoShinhoServ_Monitor
         #region structing vars
 
         private NotifyIcon _notifyIcon;
-        private ContextMenu contextMenu = new ContextMenu();
-        public int errormsgcount;
-        public int sqlmsgcount;
-        public int warningmsgcount;
-        public int debugmsgcount;
-        public int onlinecount;
+        private readonly ContextMenu contextMenu = new ContextMenu();
+        public short errormsgcount;
+        public short sqlmsgcount;
+        public short warningmsgcount;
+        public short debugmsgcount;
+        public short onlinecount;
         public Point p;
         public Thickness StartMargin;
         public Thickness StopMargin;
@@ -57,7 +57,7 @@ namespace AoShinhoServ_Monitor
             public string Content;
         }
 
-        private List<ErrorLog> errorLogs = new List<ErrorLog>();
+        private readonly List<ErrorLog> errorLogs = new List<ErrorLog>();
 
         public enum MonitorType
         {
@@ -105,13 +105,7 @@ namespace AoShinhoServ_Monitor
 
         private Thickness F_Thickness_Pressed(Thickness thickness) => new Thickness(thickness.Left + 1, thickness.Top + 1, thickness.Right, thickness.Bottom);
 
-        private void F_Grid_Animate(Grid grid, Thickness thickness, bool enter = false)
-        {
-            if (enter)
-                grid.BeginAnimation(MarginProperty, F_Thickness_Animate(thickness, F_Thickness_Pressed(thickness)));
-            else
-                grid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(thickness), thickness));
-        }
+        private void F_Grid_Animate(Grid grid, Thickness thickness, bool enter = false) => grid.BeginAnimation(MarginProperty, enter ? F_Thickness_Animate(thickness, F_Thickness_Pressed(thickness)) : F_Thickness_Animate(F_Thickness_Pressed(thickness), thickness));
 
         #endregion AnimationFunctions
 
@@ -246,8 +240,7 @@ namespace AoShinhoServ_Monitor
 
             #endregion filldictionary
 
-            if (actions.ContainsKey(Processname))
-                actions[Processname].Invoke();
+            actions[Processname]?.Invoke();
 
             return type;
         }
@@ -258,17 +251,18 @@ namespace AoShinhoServ_Monitor
 
         #region color
 
+        private Run ColoredText(string text, Brush typeColor)
+        {
+            Run typeRun = new Run(text);
+            typeRun.Foreground = typeColor;
+            return typeRun;
+        }
+
         public Paragraph AppendColoredText(string type, string info, Brush typeColor)
         {
             Paragraph paragraph = new Paragraph();
-
-            Run typeRun = new Run(type);
-            typeRun.Foreground = typeColor;
-            paragraph.Inlines.Add(typeRun);
-
-            Run infoRun = new Run(info);
-            infoRun.Foreground = Properties.Settings.Default.WhiteMode ? Brushes.Black : Brushes.White;
-            paragraph.Inlines.Add(infoRun);
+            paragraph.Inlines.Add(ColoredText(type, typeColor));
+            paragraph.Inlines.Add(ColoredText(info, GetMessageTypeColor(info)));
             return paragraph;
         }
 
@@ -288,27 +282,19 @@ namespace AoShinhoServ_Monitor
                 case "[Warning]":
                     return Brushes.Orange;
 
+                case "[Users]":
                 case "[Status]":
                     return Brushes.Green;
 
-                case "[Users]":
-                    return Brushes.Green;
-
-                default:
-                    {
-                        Brush color = Brushes.White;
-                        if (Properties.Settings.Default.WhiteMode)
-                            color = Brushes.Black;
-                        return color;
-                    }
+                default: return WhiteModeColor();
             }
         }
 
+        private Brush WhiteModeColor(bool reverse = false) => (Properties.Settings.Default.WhiteMode && !reverse || !Properties.Settings.Default.WhiteMode && reverse) ? Brushes.Black : Brushes.White;
+
         private void Do_Starting_Message()
         {
-            Brush color = Brushes.White;
-            if (Properties.Settings.Default.WhiteMode)
-                color = Brushes.Black;
+            Brush color = WhiteModeColor();
 
             Do_Clear_All();
             Login.Document.Blocks.Add(AppendColoredText("[Info] ", "Login Server is Waiting...", color));
@@ -339,30 +325,17 @@ namespace AoShinhoServ_Monitor
 
         private void Do_White_Mode()
         {
-            if (Properties.Settings.Default.WhiteMode)
-            {
-                Map.Background = Brushes.White;
-                MapP.Foreground = Brushes.Black;
-                Char.Background = Brushes.White;
-                CharP.Foreground = Brushes.Black;
-                Login.Background = Brushes.White;
-                LoginP.Foreground = Brushes.Black;
-                Web.Background = Brushes.White;
-                WebP.Foreground = Brushes.Black;
-                if (!OnOff)
-                    Do_Starting_Message();
+            Brush Foreground = WhiteModeColor();
+            Brush Background = WhiteModeColor(true);
 
-                return;
-            }
-
-            Map.Background = Brushes.Black;
-            MapP.Foreground = Brushes.White;
-            Char.Background = Brushes.Black;
-            CharP.Foreground = Brushes.White;
-            Login.Background = Brushes.Black;
-            LoginP.Foreground = Brushes.White;
-            Web.Background = Brushes.Black;
-            WebP.Foreground = Brushes.White;
+            Map.Background = Background;
+            MapP.Foreground = Foreground;
+            Char.Background = Background;
+            CharP.Foreground = Foreground;
+            Login.Background = Background;
+            LoginP.Foreground = Foreground;
+            Web.Background = Background;
+            WebP.Foreground = Foreground;
             if (!OnOff)
                 Do_Starting_Message();
         }
@@ -374,14 +347,6 @@ namespace AoShinhoServ_Monitor
             Properties.Settings.Default.Save();
             OptWin.Hide();
         }
-
-        private void OptionWin_Enter(object sender, RoutedEventArgs e) => OptWin.OkayGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(OptionSaveMargin, F_Thickness_Pressed(OptionSaveMargin)));
-
-        private void OptionWin_Leave(object sender, RoutedEventArgs e) => OptWin.OkayGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(OptionSaveMargin), OptionSaveMargin));
-
-        private void OptionWin_Cancel_Enter(object sender, RoutedEventArgs e) => OptWin.CancelGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(OptionCancelMargin, F_Thickness_Pressed(OptionCancelMargin)));
-
-        private void OptionWin_Cancel_Leave(object sender, RoutedEventArgs e) => OptWin.CancelGrid.BeginAnimation(MarginProperty, F_Thickness_Animate(F_Thickness_Pressed(OptionCancelMargin), OptionCancelMargin));
 
         private void OptionWin_Cancel(object sender, RoutedEventArgs e) => OptWin.Hide();
 
@@ -524,12 +489,12 @@ namespace AoShinhoServ_Monitor
                     {
                         thisdata.type = "[Users]";
                         string[] playercount = e.Data.Split(new Char[] { ':' });
-                        Application.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            lb_online.Text = playercount[2];
-                            onlinecount = int.Parse(lb_online.Text);
-                            Task.Run(() => UpdateContextMenu());
-                        });
+                        Application.Current.Dispatcher?.InvokeAsync(() =>
+                            {
+                                lb_online.Text = playercount[2];
+                                onlinecount = short.Parse(lb_online.Text);
+                                Task.Run(() => UpdateContextMenu());
+                            });
                     }
                     else if (Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
                         return;
@@ -575,7 +540,7 @@ namespace AoShinhoServ_Monitor
 
         public void Proc_Data2Box(RichTextBox box, ProcessData thisdata)
         {
-            Application.Current.Dispatcher.InvokeAsync(() =>
+            Application.Current.Dispatcher?.InvokeAsync(() =>
             {
                 switch (thisdata.type)
                 {
@@ -612,32 +577,27 @@ namespace AoShinhoServ_Monitor
 
         public void Proc_HasExited(object sender, EventArgs e)
         {
-            try
+            Application.Current.Dispatcher?.InvokeAsync(() =>
             {
-                Application.Current.Dispatcher.InvokeAsync(() =>
+                switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
                 {
-                    switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
-                    {
-                        case MonitorType.LOGIN:
-                            Login.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
-                            break;
+                    case MonitorType.LOGIN:
+                        Login.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
+                        break;
 
-                        case MonitorType.CHAR:
-                            Char.AppendText(Environment.NewLine + ">>Char Server - stopped<<");
-                            break;
+                    case MonitorType.CHAR:
+                        Char.AppendText(Environment.NewLine + ">>Char Server - stopped<<");
+                        break;
 
-                        case MonitorType.WEB:
-                            Web.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
-                            break;
+                    case MonitorType.WEB:
+                        Web.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
+                        break;
 
-                        default:
-                            Map.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
-                            break;
-                    }
-                });
-            }
-            catch
-            { }
+                    default:
+                        Map.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
+                        break;
+                }
+            });
         }
 
         #endregion ProcesingInfo
@@ -764,6 +724,14 @@ namespace AoShinhoServ_Monitor
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) => Do_End();
 
         #region btn_animation
+
+        private void OptionWin_Enter(object sender, RoutedEventArgs e) => F_Grid_Animate(OptWin.OkayGrid, OptionSaveMargin, true);
+
+        private void OptionWin_Leave(object sender, RoutedEventArgs e) => F_Grid_Animate(OptWin.OkayGrid, OptionSaveMargin);
+
+        private void OptionWin_Cancel_Enter(object sender, RoutedEventArgs e) => F_Grid_Animate(OptWin.CancelGrid, OptionCancelMargin, true);
+
+        private void OptionWin_Cancel_Leave(object sender, RoutedEventArgs e) => F_Grid_Animate(OptWin.CancelGrid, OptionCancelMargin);
 
         private void StartBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(StartGrid, StartMargin, true);
 
