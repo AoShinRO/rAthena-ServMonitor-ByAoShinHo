@@ -1,1 +1,1 @@
-rAthena Server Monitor recoded by AoShinHo
+rAthena Server Monitor by AoShinHo
