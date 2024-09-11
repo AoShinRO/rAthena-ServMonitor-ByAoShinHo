@@ -89,6 +89,7 @@
     <Compile Include="Forms\OptionsWnd.xaml.cs">
       <DependentUpon>OptionsWnd.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MainDefs.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using static AoShinhoServ_Monitor.ProcessManager;
 
 namespace AoShinhoServ_Monitor.Forms
 {
@@ -15,34 +16,22 @@ namespace AoShinhoServ_Monitor.Forms
             InitializeComponent();
         }
 
-        #region Enum
-
-        public enum SM
-        {
-            Login,
-            Char,
-            Web,
-            Map
-        }
-
-        #endregion Enum
-
         #region Btn_Related
 
-        public string OpenPathDialogBox(SM type)
+        public string OpenPathDialogBox(rAthena type)
         {
             OpenFileDialog box;
             switch (type)
             {
-                case SM.Login:
+                case rAthena.Login:
                     box = new OpenFileDialog { Filter = @"login-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
-                case SM.Char:
+                case rAthena.Char:
                     box = new OpenFileDialog { Filter = @"char-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
-                case SM.Web:
+                case rAthena.Web:
                     box = new OpenFileDialog { Filter = @"web-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
@@ -57,9 +46,9 @@ namespace AoShinhoServ_Monitor.Forms
 
             switch (type)
             {
-                case SM.Login: return Properties.Settings.Default.LoginPath;
-                case SM.Char: return Properties.Settings.Default.CharPath;
-                case SM.Web: return Properties.Settings.Default.WebPath;
+                case rAthena.Login: return Properties.Settings.Default.LoginPath;
+                case rAthena.Char: return Properties.Settings.Default.CharPath;
+                case rAthena.Web: return Properties.Settings.Default.WebPath;
                 default: return Properties.Settings.Default.MapPath;
             }
         }
@@ -81,28 +70,28 @@ namespace AoShinhoServ_Monitor.Forms
 
         private void MapExePath_Click(object sender, RoutedEventArgs e)
         {
-            MapPath.Text = OpenPathDialogBox(SM.Map);
+            MapPath.Text = OpenPathDialogBox(rAthena.Map);
             if (File.Exists(MapPath.Text))
                 Properties.Settings.Default.MapPath = MapPath.Text;
         }
 
         private void WebExePath_Click(object sender, RoutedEventArgs e)
         {
-            WebPath.Text = OpenPathDialogBox(SM.Web);
+            WebPath.Text = OpenPathDialogBox(rAthena.Web);
             if (File.Exists(WebPath.Text))
                 Properties.Settings.Default.WebPath = WebPath.Text;
         }
 
         private void LoginExePath_Click(object sender, RoutedEventArgs e)
         {
-            LoginPath.Text = OpenPathDialogBox(SM.Login);
+            LoginPath.Text = OpenPathDialogBox(rAthena.Login);
             if (File.Exists(LoginPath.Text))
                 Properties.Settings.Default.LoginPath = LoginPath.Text;
         }
 
         private void CharExePath_Click(object sender, RoutedEventArgs e)
         {
-            CharPath.Text = OpenPathDialogBox(SM.Char);
+            CharPath.Text = OpenPathDialogBox(rAthena.Char);
             if (File.Exists(CharPath.Text))
                 Properties.Settings.Default.CharPath = CharPath.Text;
         }

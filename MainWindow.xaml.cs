@@ -1,21 +1,17 @@
-﻿using AoShinhoServ_Monitor.Forms;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Application = System.Windows.Application;
-using ContextMenu = System.Windows.Forms.ContextMenu;
 using MenuItem = System.Windows.Forms.MenuItem;
 using NotifyIcon = System.Windows.Forms.NotifyIcon;
 using static AoShinhoServ_Monitor.AnimationHelper;
 using static AoShinhoServ_Monitor.ProcessManager;
 using static AoShinhoServ_Monitor.ParagraphHelper;
+using static AoShinhoServ_Monitor.MainDefs;
 
 namespace AoShinhoServ_Monitor
 {
@@ -32,28 +28,6 @@ namespace AoShinhoServ_Monitor
             GetButtonPosition();
             Do_White_Mode();
         }
-
-        public static NotifyIcon _notifyIcon;
-        public static readonly ContextMenu trayMenu = new ContextMenu();
-        public static short errormsgcount;
-        public static short sqlmsgcount;
-        public static short warningmsgcount;
-        public static short debugmsgcount;
-        public static short onlinecount;
-        public static bool OnOff;
-        public static bool IsDragging;
-        public static Point MousePosition;
-        public static Thickness StartMargin;
-        public static Thickness StopMargin;
-        public static Thickness OptionMargin;
-        public static Thickness RestartMargin;
-        public static Thickness OptionSaveMargin;
-        public static Thickness OptionCancelMargin;
-        public static readonly List<rAthenaError> errorLogs = new List<rAthenaError>();
-        public static rAthenaData LastErrorLog;
-        public static OptionsWnd OptWin = new OptionsWnd();
-        public static Logs LogWin = new Logs();
-
 
         #region AnimationFunctions
 
@@ -73,15 +47,15 @@ namespace AoShinhoServ_Monitor
 
         public void Do_Clear_All()
         {
-            debugmsgcount = 0;
-            sqlmsgcount = 0;
-            errormsgcount = 0;
-            warningmsgcount = 0;
+            CounterDebug = 0;
+            CounterSql = 0;
+            CounterError = 0;
+            CounterWarning = 0;
             lb_online.Text = "0";
-            lb_debug.Text = "Debug: " + debugmsgcount;
-            lb_sql.Text = "SQL: " + sqlmsgcount;
-            lb_error.Text = "Error: " + errormsgcount;
-            lb_warning.Text = "Warning: " + warningmsgcount;
+            lb_debug.Text = "Debug: " + CounterDebug;
+            lb_sql.Text = "SQL: " + CounterSql;
+            lb_error.Text = "Error: " + CounterError;
+            lb_warning.Text = "Warning: " + CounterWarning;
             Login.Document.Blocks.Clear();
             Char.Document.Blocks.Clear();
             Map.Document.Blocks.Clear();
@@ -160,7 +134,7 @@ namespace AoShinhoServ_Monitor
                         Application.Current.Dispatcher?.InvokeAsync(() =>
                             {
                                 lb_online.Text = playercount[2];
-                                onlinecount = short.Parse(lb_online.Text);
+                                CounterOnline = short.Parse(lb_online.Text);
                                 Task.Run(() => UpdateContextMenu());
                             });
                     }
@@ -213,26 +187,26 @@ namespace AoShinhoServ_Monitor
                 switch (message.type)
                 {
                     case "[Error]":
-                        errormsgcount++;
-                        lb_error.Text = "Error: " + errormsgcount;
+                        CounterError++;
+                        lb_error.Text = "Error: " + CounterError;
                         Add_ErrorLog(message.type, message.info);
                         break;
 
                     case "[Debug]":
-                        debugmsgcount++;
-                        lb_debug.Text = "Debug: " + debugmsgcount;
+                        CounterDebug++;
+                        lb_debug.Text = "Debug: " + CounterDebug;
                         Add_ErrorLog(message.type, message.info);
                         break;
 
                     case "[SQL]":
-                        sqlmsgcount++;
-                        lb_sql.Text = "SQL: " + sqlmsgcount;
+                        CounterSql++;
+                        lb_sql.Text = "SQL: " + CounterSql;
                         Add_ErrorLog(message.type, message.info);
                         break;
 
                     case "[Warning]":
-                        warningmsgcount++;
-                        lb_warning.Text = "Warning: " + warningmsgcount;
+                        CounterWarning++;
+                        lb_warning.Text = "Warning: " + CounterWarning;
                         Add_ErrorLog(message.type, message.info);
                         break;
 
@@ -273,8 +247,6 @@ namespace AoShinhoServ_Monitor
 
         #endregion CoreFunctions
 
-        #region color
-
         private void Do_Starting_Message()
         {
             Brush color = WhiteModeColor();
@@ -285,8 +257,6 @@ namespace AoShinhoServ_Monitor
             Map.Document.Blocks.Add(AppendColoredText("[Info] ", "Map Server is Waiting...", color));
             Web.Document.Blocks.Add(AppendColoredText("[Info] ", "Web Server is Waiting...", color));
         }
-
-        #endregion color
 
         #region OptionWinRelated
 
@@ -300,8 +270,6 @@ namespace AoShinhoServ_Monitor
             OptWin.Cancellbl.MouseLeave += OptionWin_Cancel_Leave;
             OptWin.WhiteMode.Checked += OptionWin_Do_White_Mode;
             OptWin.WhiteMode.Unchecked += OptionWin_Do_White_Mode;
-            LogWin.CloseLog.Click += LogWin_Cancel;
-            LogWin.Save.Click += LogWin_Save;
         }
 
         private void OptionWin_Do_White_Mode(object sender, RoutedEventArgs e) => Do_White_Mode();
@@ -339,38 +307,6 @@ namespace AoShinhoServ_Monitor
 
         #region LogWinRelated
 
-        private void LogWin_Save(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Text Archive (*.txt)|*.txt";
-            saveFileDialog.Title = "Save Logs";
-            string fileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
-            saveFileDialog.FileName = fileName;
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                string directoryPath = Path.GetDirectoryName(saveFileDialog.FileName);
-                string filePath = Path.Combine(directoryPath, fileName);
-
-                try
-                {
-                    using (StreamWriter writer = new StreamWriter(filePath))
-                    {
-                        foreach (var log in errorLogs)
-                        {
-                            writer.WriteLine($"{log.Type} {log.Content}");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Fail saving logs: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                LogWin.Hide();
-            }
-        }
-
-        private void LogWin_Cancel(object sender, RoutedEventArgs e) => LogWin.Hide();
-
         public void Add_ErrorLog(string type, string content)
         {
             errorLogs.Add(new rAthenaError { Type = type, Content = content });
@@ -396,11 +332,11 @@ namespace AoShinhoServ_Monitor
                 WindowState = WindowState.Normal;
             };
 
-            trayMenu.MenuItems.Add($"Online: {onlinecount}");
-            trayMenu.MenuItems.Add($"Erro: {errormsgcount}");
-            trayMenu.MenuItems.Add($"SQL: {sqlmsgcount}");
-            trayMenu.MenuItems.Add($"Warning: {warningmsgcount}");
-            trayMenu.MenuItems.Add($"Debug: {debugmsgcount}");
+            trayMenu.MenuItems.Add($"Online: {CounterOnline}");
+            trayMenu.MenuItems.Add($"Error: {CounterError}");
+            trayMenu.MenuItems.Add($"SQL: {CounterSql}");
+            trayMenu.MenuItems.Add($"Warning: {CounterWarning}");
+            trayMenu.MenuItems.Add($"Debug: {CounterDebug}");
 
             trayMenu.MenuItems.Add("Restore", (sender, e) =>
             {
@@ -425,23 +361,23 @@ namespace AoShinhoServ_Monitor
                 switch (variableName)
                 {
                     case "Erro":
-                        menuItem.Text = $"Erro: {errormsgcount}";
+                        menuItem.Text = $"Erro: {CounterError}";
                         break;
 
                     case "SQL":
-                        menuItem.Text = $"SQL: {sqlmsgcount}";
+                        menuItem.Text = $"SQL: {CounterSql}";
                         break;
 
                     case "Warning":
-                        menuItem.Text = $"Warning: {warningmsgcount}";
+                        menuItem.Text = $"Warning: {CounterWarning}";
                         break;
 
                     case "Debug":
-                        menuItem.Text = $"Debug: {debugmsgcount}";
+                        menuItem.Text = $"Debug: {CounterDebug}";
                         break;
 
                     case "Online":
-                        menuItem.Text = $"Online: {onlinecount}";
+                        menuItem.Text = $"Online: {CounterOnline}";
                         break;
                 }
             }
