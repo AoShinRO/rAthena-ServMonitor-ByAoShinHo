@@ -7,14 +7,15 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using Application = System.Windows.Application;
 using ContextMenu = System.Windows.Forms.ContextMenu;
 using MenuItem = System.Windows.Forms.MenuItem;
 using NotifyIcon = System.Windows.Forms.NotifyIcon;
+using static AoShinhoServ_Monitor.AnimationHelper;
+using static AoShinhoServ_Monitor.ProcessManager;
+using static AoShinhoServ_Monitor.ParagraphHelper;
 
 namespace AoShinhoServ_Monitor
 {
@@ -32,51 +33,27 @@ namespace AoShinhoServ_Monitor
             Do_White_Mode();
         }
 
-        #region structing vars
+        public static NotifyIcon _notifyIcon;
+        public static readonly ContextMenu trayMenu = new ContextMenu();
+        public static short errormsgcount;
+        public static short sqlmsgcount;
+        public static short warningmsgcount;
+        public static short debugmsgcount;
+        public static short onlinecount;
+        public static bool OnOff;
+        public static bool IsDragging;
+        public static Point MousePosition;
+        public static Thickness StartMargin;
+        public static Thickness StopMargin;
+        public static Thickness OptionMargin;
+        public static Thickness RestartMargin;
+        public static Thickness OptionSaveMargin;
+        public static Thickness OptionCancelMargin;
+        public static readonly List<rAthenaError> errorLogs = new List<rAthenaError>();
+        public static rAthenaData LastErrorLog;
+        public static OptionsWnd OptWin = new OptionsWnd();
+        public static Logs LogWin = new Logs();
 
-        public enum rAthena
-        {
-            Map,
-            Login,
-            Char,
-            Web
-        };
-
-        public struct rAthenaError
-        {
-            public string Type;
-            public string Content;
-        }
-
-        public struct rAthenaData
-        {
-            public string type;
-            public string info;
-            public Brush Color;
-        }
-
-        private NotifyIcon _notifyIcon;
-        private readonly ContextMenu trayMenu = new ContextMenu();
-        public short errormsgcount;
-        public short sqlmsgcount;
-        public short warningmsgcount;
-        public short debugmsgcount;
-        public short onlinecount;
-        public bool OnOff;
-        public bool IsDragging;
-        public Point MousePosition;
-        public Thickness StartMargin;
-        public Thickness StopMargin;
-        public Thickness OptionMargin;
-        public Thickness RestartMargin;
-        public Thickness OptionSaveMargin;
-        public Thickness OptionCancelMargin;
-        private readonly List<rAthenaError> errorLogs = new List<rAthenaError>();
-        public rAthenaData LastErrorLog;
-        public OptionsWnd OptWin = new OptionsWnd();
-        public Logs LogWin = new Logs();
-
-        #endregion structing vars
 
         #region AnimationFunctions
 
@@ -89,20 +66,6 @@ namespace AoShinhoServ_Monitor
             OptionCancelMargin = OptWin.CancelGrid.Margin;
             OptionSaveMargin = OptWin.OkayGrid.Margin;
         }
-
-        private ThicknessAnimation F_Thickness_Animate(Thickness From, Thickness To, double Duration = 0.1)
-        {
-            ThicknessAnimation marginAnimation = new ThicknessAnimation();
-            marginAnimation.GetAnimationBaseValue(MarginProperty);
-            marginAnimation.From = From;
-            marginAnimation.To = To;
-            marginAnimation.Duration = TimeSpan.FromSeconds(Duration);
-            return marginAnimation;
-        }
-
-        private Thickness F_Thickness_Pressed(Thickness thickness) => new Thickness(thickness.Left + 1, thickness.Top + 1, thickness.Right, thickness.Bottom);
-
-        private void F_Grid_Animate(Grid grid, Thickness thickness, bool enter = false) => grid.BeginAnimation(MarginProperty, enter ? F_Thickness_Animate(thickness, F_Thickness_Pressed(thickness)) : F_Thickness_Animate(F_Thickness_Pressed(thickness), thickness));
 
         #endregion AnimationFunctions
 
@@ -125,40 +88,6 @@ namespace AoShinhoServ_Monitor
             Web.Document.Blocks.Clear();
             errorLogs.Clear();
             LogWin.LogsRTB.Document.Blocks.Clear();
-        }
-
-        public void KillAll(string ProcessName)
-        {
-            try
-            {
-                Process[] processes = Process.GetProcessesByName(ProcessName);
-
-                foreach (Process process in processes)
-                {
-                    try
-                    {
-                        process.Kill();
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-            catch
-            {
-            }
-        }
-
-        public void Do_Kill_All()
-        {
-            try
-            {
-                KillAll(Procnamecfg(Properties.Settings.Default.LoginPath));
-                KillAll(Procnamecfg(Properties.Settings.Default.CharPath));
-                KillAll(Procnamecfg(Properties.Settings.Default.WebPath));
-                KillAll(Procnamecfg(Properties.Settings.Default.MapPath));
-            }
-            catch { }
         }
 
         public void Do_Run_All()
@@ -205,266 +134,6 @@ namespace AoShinhoServ_Monitor
                 MessageBox.Show(ex.Message + "\n\n" + ex.StackTrace);
             }
         }
-
-        public string Procnamecfg(string cfgname) => Path.GetFileNameWithoutExtension(cfgname);
-
-        public rAthena Get_process_num(string Processname)
-        {
-            rAthena type = rAthena.Map;
-            Dictionary<string, Action> actions = new Dictionary<string, Action>();
-
-            #region filldictionary
-
-            actions.Add(Procnamecfg(Properties.Settings.Default.LoginPath).ToLowerInvariant(), () =>
-            {
-                type = rAthena.Login;
-            });
-
-            actions.Add(Procnamecfg(Properties.Settings.Default.CharPath).ToLowerInvariant(), () =>
-            {
-                type = rAthena.Char;
-            });
-
-            actions.Add(Procnamecfg(Properties.Settings.Default.WebPath).ToLowerInvariant(), () =>
-            {
-                type = rAthena.Web;
-            });
-
-            actions.Add(Procnamecfg(Properties.Settings.Default.MapPath).ToLowerInvariant(), () =>
-            {
-                type = rAthena.Map;
-            });
-
-            #endregion filldictionary
-
-            actions[Processname]?.Invoke();
-
-            return type;
-        }
-
-        private void RTB_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) => ((RichTextBox)sender).ScrollToEnd();
-
-        #endregion CoreFunctions
-
-        #region color
-
-        private Run ColoredText(string text, Brush typeColor)
-        {
-            Run typeRun = new Run(text);
-            typeRun.Foreground = typeColor;
-            return typeRun;
-        }
-
-        public Paragraph AppendColoredText(string type, string info, Brush typeColor)
-        {
-            Paragraph paragraph = new Paragraph();
-            paragraph.Inlines.Add(ColoredText(type, typeColor));
-            paragraph.Inlines.Add(ColoredText(info, GetMessageTypeColor(info)));
-            return paragraph;
-        }
-
-        public Brush GetMessageTypeColor(string messageType)
-        {
-            switch (messageType)
-            {
-                case "[Error]":
-                    return Brushes.Red;
-
-                case "[Debug]":
-                    return Brushes.Aqua;
-
-                case "[SQL]":
-                    return Brushes.BlueViolet;
-
-                case "[Warning]":
-                    return Brushes.Orange;
-
-                case "[Users]":
-                case "[Status]":
-                    return Brushes.Green;
-
-                default: return WhiteModeColor();
-            }
-        }
-
-        private Brush WhiteModeColor(bool reverse = false) => (Properties.Settings.Default.WhiteMode && !reverse || !Properties.Settings.Default.WhiteMode && reverse) ? Brushes.Black : Brushes.White;
-
-        private void Do_Starting_Message()
-        {
-            Brush color = WhiteModeColor();
-
-            Do_Clear_All();
-            Login.Document.Blocks.Add(AppendColoredText("[Info] ", "Login Server is Waiting...", color));
-            Char.Document.Blocks.Add(AppendColoredText("[Info] ", "Char Server is Waiting...", color));
-            Map.Document.Blocks.Add(AppendColoredText("[Info] ", "Map Server is Waiting...", color));
-            Web.Document.Blocks.Add(AppendColoredText("[Info] ", "Web Server is Waiting...", color));
-        }
-
-        #endregion color
-
-        #region OptionWinRelated
-
-        private void InitializeSubWinComponent()
-        {
-            OptWin.Okaylbl.MouseDown += OptionWin_Okay;
-            OptWin.Okaylbl.MouseEnter += OptionWin_Enter;
-            OptWin.Okaylbl.MouseLeave += OptionWin_Leave;
-            OptWin.Cancellbl.MouseDown += OptionWin_Cancel;
-            OptWin.Cancellbl.MouseEnter += OptionWin_Cancel_Enter;
-            OptWin.Cancellbl.MouseLeave += OptionWin_Cancel_Leave;
-            OptWin.WhiteMode.Checked += OptionWin_Do_White_Mode;
-            OptWin.WhiteMode.Unchecked += OptionWin_Do_White_Mode;
-            LogWin.CloseLog.Click += LogWin_Cancel;
-            LogWin.Save.Click += LogWin_Save;
-        }
-
-        private void OptionWin_Do_White_Mode(object sender, RoutedEventArgs e) => Do_White_Mode();
-
-        private void Do_White_Mode()
-        {
-            Brush Foreground = WhiteModeColor();
-            Brush Background = WhiteModeColor(true);
-
-            Map.Background =
-            Char.Background =
-            Login.Background =
-            Web.Background = Background;
-
-            WebP.Foreground =
-            LoginP.Foreground =
-            CharP.Foreground =
-            MapP.Foreground = Foreground;
-
-            if (!OnOff)
-                Do_Starting_Message();
-        }
-
-        private void OptionWin_MouseDown(object sender, MouseButtonEventArgs e) => OptWin.Show();
-
-        private void OptionWin_Okay(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.Save();
-            OptWin.Hide();
-        }
-
-        private void OptionWin_Cancel(object sender, RoutedEventArgs e) => OptWin.Hide();
-
-        #endregion OptionWinRelated
-
-        #region LogWinRelated
-
-        private void LogWin_Save(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Text Archive (*.txt)|*.txt";
-            saveFileDialog.Title = "Save Logs";
-            string fileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
-            saveFileDialog.FileName = fileName;
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                string directoryPath = Path.GetDirectoryName(saveFileDialog.FileName);
-                string filePath = Path.Combine(directoryPath, fileName);
-
-                try
-                {
-                    using (StreamWriter writer = new StreamWriter(filePath))
-                    {
-                        foreach (var log in errorLogs)
-                        {
-                            writer.WriteLine($"{log.Type} {log.Content}");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Fail saving logs: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                LogWin.Hide();
-            }
-        }
-
-        private void LogWin_Cancel(object sender, RoutedEventArgs e) => LogWin.Hide();
-
-        private void Add_ErrorLog(string type, string content)
-        {
-            errorLogs.Add(new rAthenaError { Type = type, Content = content });
-            Task.Run(() => UpdateContextMenu());
-        }
-
-        #endregion LogWinRelated
-
-        #region tray
-
-        private void InitializeNotifyIcon()
-        {
-            _notifyIcon = new NotifyIcon
-            {
-                Icon = Properties.Resources.Main_Icon, // Substitua "SeuIcone" pelo nome do seu ícone nos recursos
-                Visible = true,
-                Text = "rAthena Server Monitor by AoShinHo."
-            };
-            _notifyIcon.MouseDoubleClick += (sender, e) =>
-            {
-                Show();
-                _notifyIcon.Visible = false;
-                WindowState = WindowState.Normal;
-            };
-
-            trayMenu.MenuItems.Add($"Online: {onlinecount}");
-            trayMenu.MenuItems.Add($"Erro: {errormsgcount}");
-            trayMenu.MenuItems.Add($"SQL: {sqlmsgcount}");
-            trayMenu.MenuItems.Add($"Warning: {warningmsgcount}");
-            trayMenu.MenuItems.Add($"Debug: {debugmsgcount}");
-
-            trayMenu.MenuItems.Add("Restore", (sender, e) =>
-            {
-                Show();
-                _notifyIcon.Visible = false;
-                WindowState = WindowState.Normal;
-            });
-            trayMenu.MenuItems.Add("Close", (sender, e) =>
-            {
-                Close();
-            });
-            _notifyIcon.Visible = false;
-            _notifyIcon.ContextMenu = trayMenu;
-        }
-
-        private void UpdateContextMenu()
-        {
-            foreach (MenuItem menuItem in trayMenu.MenuItems)
-            {
-                string[] menuItemTextParts = menuItem.Text.Split(':');
-                string variableName = menuItemTextParts[0];
-                switch (variableName)
-                {
-                    case "Erro":
-                        menuItem.Text = $"Erro: {errormsgcount}";
-                        break;
-
-                    case "SQL":
-                        menuItem.Text = $"SQL: {sqlmsgcount}";
-                        break;
-
-                    case "Warning":
-                        menuItem.Text = $"Warning: {warningmsgcount}";
-                        break;
-
-                    case "Debug":
-                        menuItem.Text = $"Debug: {debugmsgcount}";
-                        break;
-
-                    case "Online":
-                        menuItem.Text = $"Online: {onlinecount}";
-                        break;
-                }
-            }
-
-            _notifyIcon.ContextMenu = trayMenu;
-        }
-
-        #endregion tray
-
         #region ProcesingInfo
 
         public void Proc_DataReceived(object sender, DataReceivedEventArgs e)
@@ -600,32 +269,187 @@ namespace AoShinhoServ_Monitor
         }
 
         #endregion ProcesingInfo
+        private void RTB_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) => ((RichTextBox)sender).ScrollToEnd();
 
-        #region ValidatePathConfig
+        #endregion CoreFunctions
 
-        private static bool CheckServerPath()
+        #region color
+
+        private void Do_Starting_Message()
         {
-            if (CheckMissingFile(Properties.Settings.Default.LoginPath, "login-server.exe") ||
-               CheckMissingFile(Properties.Settings.Default.CharPath, "char-server.exe") ||
-               CheckMissingFile(Properties.Settings.Default.WebPath, "web-server.exe") ||
-               CheckMissingFile(Properties.Settings.Default.MapPath, "map-server.exe"))
-                return false;
+            Brush color = WhiteModeColor();
 
-            return true;
+            Do_Clear_All();
+            Login.Document.Blocks.Add(AppendColoredText("[Info] ", "Login Server is Waiting...", color));
+            Char.Document.Blocks.Add(AppendColoredText("[Info] ", "Char Server is Waiting...", color));
+            Map.Document.Blocks.Add(AppendColoredText("[Info] ", "Map Server is Waiting...", color));
+            Web.Document.Blocks.Add(AppendColoredText("[Info] ", "Web Server is Waiting...", color));
         }
 
-        private static bool CheckMissingFile(string file, string mes)
+        #endregion color
+
+        #region OptionWinRelated
+
+        private void InitializeSubWinComponent()
         {
-            if (!File.Exists(file) || file == String.Empty)
+            OptWin.Okaylbl.MouseDown += OptionWin_Okay;
+            OptWin.Okaylbl.MouseEnter += OptionWin_Enter;
+            OptWin.Okaylbl.MouseLeave += OptionWin_Leave;
+            OptWin.Cancellbl.MouseDown += OptionWin_Cancel;
+            OptWin.Cancellbl.MouseEnter += OptionWin_Cancel_Enter;
+            OptWin.Cancellbl.MouseLeave += OptionWin_Cancel_Leave;
+            OptWin.WhiteMode.Checked += OptionWin_Do_White_Mode;
+            OptWin.WhiteMode.Unchecked += OptionWin_Do_White_Mode;
+            LogWin.CloseLog.Click += LogWin_Cancel;
+            LogWin.Save.Click += LogWin_Save;
+        }
+
+        private void OptionWin_Do_White_Mode(object sender, RoutedEventArgs e) => Do_White_Mode();
+
+        private void Do_White_Mode()
+        {
+            Brush Foreground = WhiteModeColor();
+            Brush Background = WhiteModeColor(true);
+
+            Map.Background =
+            Char.Background =
+            Login.Background =
+            Web.Background = Background;
+
+            WebP.Foreground =
+            LoginP.Foreground =
+            CharP.Foreground =
+            MapP.Foreground = Foreground;
+
+            if (!OnOff)
+                Do_Starting_Message();
+        }
+
+        private void OptionWin_MouseDown(object sender, MouseButtonEventArgs e) => OptWin.Show();
+
+        private void OptionWin_Okay(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            OptWin.Hide();
+        }
+
+        private void OptionWin_Cancel(object sender, RoutedEventArgs e) => OptWin.Hide();
+
+        #endregion OptionWinRelated
+
+        #region LogWinRelated
+
+        private void LogWin_Save(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text Archive (*.txt)|*.txt";
+            saveFileDialog.Title = "Save Logs";
+            string fileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
+            saveFileDialog.FileName = fileName;
+            if (saveFileDialog.ShowDialog() == true)
             {
-                MessageBox.Show($"File \"{mes}\" at \"{file}\" is missing");
-                return true;
+                string directoryPath = Path.GetDirectoryName(saveFileDialog.FileName);
+                string filePath = Path.Combine(directoryPath, fileName);
+
+                try
+                {
+                    using (StreamWriter writer = new StreamWriter(filePath))
+                    {
+                        foreach (var log in errorLogs)
+                        {
+                            writer.WriteLine($"{log.Type} {log.Content}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fail saving logs: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                LogWin.Hide();
+            }
+        }
+
+        private void LogWin_Cancel(object sender, RoutedEventArgs e) => LogWin.Hide();
+
+        public void Add_ErrorLog(string type, string content)
+        {
+            errorLogs.Add(new rAthenaError { Type = type, Content = content });
+            Task.Run(() => UpdateContextMenu());
+        }
+
+        #endregion LogWinRelated
+
+        #region tray
+
+        private void InitializeNotifyIcon()
+        {
+            _notifyIcon = new NotifyIcon
+            {
+                Icon = Properties.Resources.Main_Icon, // Substitua "SeuIcone" pelo nome do seu ícone nos recursos
+                Visible = true,
+                Text = "rAthena Server Monitor by AoShinHo."
+            };
+            _notifyIcon.MouseDoubleClick += (sender, e) =>
+            {
+                Show();
+                _notifyIcon.Visible = false;
+                WindowState = WindowState.Normal;
+            };
+
+            trayMenu.MenuItems.Add($"Online: {onlinecount}");
+            trayMenu.MenuItems.Add($"Erro: {errormsgcount}");
+            trayMenu.MenuItems.Add($"SQL: {sqlmsgcount}");
+            trayMenu.MenuItems.Add($"Warning: {warningmsgcount}");
+            trayMenu.MenuItems.Add($"Debug: {debugmsgcount}");
+
+            trayMenu.MenuItems.Add("Restore", (sender, e) =>
+            {
+                Show();
+                _notifyIcon.Visible = false;
+                WindowState = WindowState.Normal;
+            });
+            trayMenu.MenuItems.Add("Close", (sender, e) =>
+            {
+                Close();
+            });
+            _notifyIcon.Visible = false;
+            _notifyIcon.ContextMenu = trayMenu;
+        }
+
+        private void UpdateContextMenu()
+        {
+            foreach (MenuItem menuItem in trayMenu.MenuItems)
+            {
+                string[] menuItemTextParts = menuItem.Text.Split(':');
+                string variableName = menuItemTextParts[0];
+                switch (variableName)
+                {
+                    case "Erro":
+                        menuItem.Text = $"Erro: {errormsgcount}";
+                        break;
+
+                    case "SQL":
+                        menuItem.Text = $"SQL: {sqlmsgcount}";
+                        break;
+
+                    case "Warning":
+                        menuItem.Text = $"Warning: {warningmsgcount}";
+                        break;
+
+                    case "Debug":
+                        menuItem.Text = $"Debug: {debugmsgcount}";
+                        break;
+
+                    case "Online":
+                        menuItem.Text = $"Online: {onlinecount}";
+                        break;
+                }
             }
 
-            return false;
+            _notifyIcon.ContextMenu = trayMenu;
         }
 
-        #endregion ValidatePathConfig
+        #endregion tray
 
         #region Btn_related
 
