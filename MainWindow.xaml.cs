@@ -8,10 +8,10 @@ using System.Windows.Media;
 using Application = System.Windows.Application;
 using MenuItem = System.Windows.Forms.MenuItem;
 using NotifyIcon = System.Windows.Forms.NotifyIcon;
+using static AoShinhoServ_Monitor.MainDefs;
 using static AoShinhoServ_Monitor.AnimationHelper;
 using static AoShinhoServ_Monitor.ProcessManager;
 using static AoShinhoServ_Monitor.ParagraphHelper;
-using static AoShinhoServ_Monitor.MainDefs;
 
 namespace AoShinhoServ_Monitor
 {

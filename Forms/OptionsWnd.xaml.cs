@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using static AoShinhoServ_Monitor.ProcessManager;
+using static AoShinhoServ_Monitor.MainDefs;
 
 namespace AoShinhoServ_Monitor.Forms
 {

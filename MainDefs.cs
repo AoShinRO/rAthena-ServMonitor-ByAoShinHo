@@ -2,12 +2,33 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Windows;
-using static AoShinhoServ_Monitor.ProcessManager;
+using System.Windows.Media;
 
 namespace AoShinhoServ_Monitor
 {
     public class MainDefs
     {
+        public enum rAthena
+        {
+            Map,
+            Login,
+            Char,
+            Web
+        };
+
+        public struct rAthenaError
+        {
+            public string Type;
+            public string Content;
+        }
+
+        public struct rAthenaData
+        {
+            public string type;
+            public string info;
+            public Brush Color;
+        }
+
         public static NotifyIcon _notifyIcon;
 
         public static readonly ContextMenu trayMenu = new ContextMenu();
@@ -32,6 +53,5 @@ namespace AoShinhoServ_Monitor
         public static OptionsWnd OptWin = new OptionsWnd();
 
         public static Logs LogWin = new Logs();
-
     }
 }

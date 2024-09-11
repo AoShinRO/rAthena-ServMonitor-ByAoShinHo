@@ -3,34 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Media;
+using static AoShinhoServ_Monitor.MainDefs;
 
 namespace AoShinhoServ_Monitor
 {
     public class ProcessManager
     {
-
-        public enum rAthena
-        {
-            Map,
-            Login,
-            Char,
-            Web
-        };
-
-        public struct rAthenaError
-        {
-            public string Type;
-            public string Content;
-        }
-
-        public struct rAthenaData
-        {
-            public string type;
-            public string info;
-            public Brush Color;
-        }
-
         public static void KillAll(string ProcessName)
         {
             try
