@@ -124,25 +124,25 @@ namespace AoShinhoServ_Monitor
 
             if (endIndex != -1)
             {
-                Data.SvType = e.Data.Substring(0, endIndex + 1);
-                Data.SvInfo = e.Data.Substring(endIndex + 1);
-                if (Data.SvType == "[Status]")
+                Data.Header = e.Data.Substring(0, endIndex + 1);
+                Data.Body = e.Data.Substring(endIndex + 1);
+                if (Data.Header == "[Status]")
                 {
                     if (e.Data.Contains("set users"))
-                        Data.SvType = "[Users]";
+                        Data.Header = "[Users]";
                     else if (Properties.Settings.Default.DebugMode && e.Data.Contains("Loading"))
                         return;
                 }
             }
             else
             {
-                Data.SvType = "";
-                Data.SvInfo = e.Data;
-                if (LastErrorLog.SvType == "[Error]")
+                Data.Header = "";
+                Data.Body = e.Data;
+                if (LastErrorLog.Header == "[Error]")
                     Add_ErrorLog(Data);
             }
 
-            Data.SvBrush = GetMessageTypeColor(Data);
+            Data.Paint = GetMessageTypeColor(Data);
 
             LastErrorLog = Data;
 
@@ -152,15 +152,15 @@ namespace AoShinhoServ_Monitor
 
             switch (Get_process_num(((Process)sender).ProcessName.ToLowerInvariant()))
             {
-                case rAthenaTypes.LoginSv:
+                case rAthena.LoginSv:
                     Proc_Data2Box(LoginBox, Data);
                     break;
 
-                case rAthenaTypes.CharSv:
+                case rAthena.CharSv:
                     Proc_Data2Box(CharBox, Data);
                     break;
 
-                case rAthenaTypes.WebSv:
+                case rAthena.WebSv:
                     Proc_Data2Box(WebBox, Data);
                     break;
 
@@ -176,7 +176,7 @@ namespace AoShinhoServ_Monitor
         {
             Application.Current.Dispatcher?.InvokeAsync(() =>
             {
-                switch (Data.SvType)
+                switch (Data.Header)
                 {
                     case "[Error]":
                         CounterError++;
@@ -203,7 +203,7 @@ namespace AoShinhoServ_Monitor
                         break;
 
                     case "[Users]":
-                        string[] playercount = Data.SvInfo.Split(new Char[] { ':' });
+                        string[] playercount = Data.Body.Split(new Char[] { ':' });
                         lb_online.Text = playercount[2];
                         CounterOnline = short.Parse(lb_online.Text);
                         Task.Run(() => UpdateContextMenu());
@@ -222,15 +222,15 @@ namespace AoShinhoServ_Monitor
             {
                 switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
                 {
-                    case rAthenaTypes.LoginSv:
+                    case rAthena.LoginSv:
                         LoginBox.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
                         break;
 
-                    case rAthenaTypes.CharSv:
+                    case rAthena.CharSv:
                         CharBox.AppendText(Environment.NewLine + ">>Char Server - stopped<<");
                         break;
 
-                    case rAthenaTypes.WebSv:
+                    case rAthena.WebSv:
                         WebBox.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
                         break;
 
@@ -252,10 +252,10 @@ namespace AoShinhoServ_Monitor
             Brush color = GetWhiteModeColor();
 
             Do_Clear_All();
-            LoginBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { SvType = "[Info] ", SvInfo = "Login Server is Waiting...", SvBrush = color }));
-            CharBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { SvType = "[Info] ", SvInfo = "Char Server is Waiting...", SvBrush = color }));
-            MapBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { SvType = "[Info] ", SvInfo = "Map Server is Waiting...", SvBrush = color }));
-            WebBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { SvType = "[Info] ", SvInfo = "Web Server is Waiting...", SvBrush = color }));
+            LoginBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Login Server is Waiting...", Paint = color }));
+            CharBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Char Server is Waiting...", Paint = color }));
+            MapBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Map Server is Waiting...", Paint = color }));
+            WebBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Web Server is Waiting...", Paint = color }));
         }
 
         #region OptionWinRelated
@@ -309,7 +309,7 @@ namespace AoShinhoServ_Monitor
 
         public void Add_ErrorLog(rAthenaData error)
         {
-            errorLogs.Add(new rAthenaError { SvType = error.SvType, SvError = error.SvInfo });
+            errorLogs.Add(new rAthenaError { Header = error.Header, Body = error.Body });
             Task.Run(() => UpdateContextMenu());
         }
 
@@ -451,7 +451,7 @@ namespace AoShinhoServ_Monitor
             LogWin.LogsRTB.Document.Blocks.Clear();
             foreach (var log in errorLogs)
             {
-                LogWin.LogsRTB.AppendText(Environment.NewLine + $"{log.SvType} {log.SvError}");
+                LogWin.LogsRTB.AppendText(Environment.NewLine + $"{log.Header} {log.Body}");
             }
             LogWin.Show();
         }

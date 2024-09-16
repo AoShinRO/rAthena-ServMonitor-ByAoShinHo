@@ -8,7 +8,7 @@ namespace AoShinhoServ_Monitor
 {
     public class Consts
     {
-        public enum rAthenaTypes
+        public enum rAthena
         {
             MapSv,
             LoginSv,
@@ -18,15 +18,15 @@ namespace AoShinhoServ_Monitor
 
         public struct rAthenaError
         {
-            public string SvType;
-            public string SvError;
+            public string Header;
+            public string Body;
         }
 
         public struct rAthenaData
         {
-            public string SvType;
-            public string SvInfo;
-            public Brush SvBrush;
+            public string Header;
+            public string Body;
+            public Brush Paint;
         }
 
         public static NotifyIcon _notifyIcon;

@@ -16,14 +16,14 @@ namespace AoShinhoServ_Monitor
         public static Paragraph AppendColoredText(rAthenaData Data)
         {
             Paragraph paragraph = new Paragraph();
-            paragraph.Inlines.Add(RunColoredText(Data.SvType, Data.SvBrush));
-            paragraph.Inlines.Add(RunColoredText(Data.SvInfo, GetWhiteModeColor()));
+            paragraph.Inlines.Add(RunColoredText(Data.Header, Data.Paint));
+            paragraph.Inlines.Add(RunColoredText(Data.Body, GetWhiteModeColor()));
             return paragraph;
         }
 
         public static Brush GetMessageTypeColor(rAthenaData Data)
         {
-            switch (Data.SvType)
+            switch (Data.Header)
             {
                 case "[Error]":
                     return Brushes.Red;

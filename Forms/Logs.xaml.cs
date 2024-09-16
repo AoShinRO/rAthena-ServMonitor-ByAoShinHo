@@ -36,7 +36,7 @@ namespace AoShinhoServ_Monitor.Forms
                     {
                         foreach (var log in errorLogs)
                         {
-                            writer.WriteLine($"{log.SvType} {log.SvError}");
+                            writer.WriteLine($"{log.Header} {log.Body}");
                         }
                     }
                 }

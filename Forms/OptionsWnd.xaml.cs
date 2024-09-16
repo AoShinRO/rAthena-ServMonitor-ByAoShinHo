@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,20 +18,20 @@ namespace AoShinhoServ_Monitor.Forms
 
         #region Btn_Related
 
-        public string OpenPathDialogBox(rAthenaTypes type)
+        public string OpenPathDialogBox(rAthena type)
         {
             OpenFileDialog box;
             switch (type)
             {
-                case rAthenaTypes.LoginSv:
+                case rAthena.LoginSv:
                     box = new OpenFileDialog { Filter = @"login-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
-                case rAthenaTypes.CharSv:
+                case rAthena.CharSv:
                     box = new OpenFileDialog { Filter = @"char-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
-                case rAthenaTypes.WebSv:
+                case rAthena.WebSv:
                     box = new OpenFileDialog { Filter = @"web-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
@@ -47,9 +46,9 @@ namespace AoShinhoServ_Monitor.Forms
 
             switch (type)
             {
-                case rAthenaTypes.LoginSv: return Properties.Settings.Default.LoginPath;
-                case rAthenaTypes.CharSv: return Properties.Settings.Default.CharPath;
-                case rAthenaTypes.WebSv: return Properties.Settings.Default.WebPath;
+                case rAthena.LoginSv: return Properties.Settings.Default.LoginPath;
+                case rAthena.CharSv: return Properties.Settings.Default.CharPath;
+                case rAthena.WebSv: return Properties.Settings.Default.WebPath;
                 default: return Properties.Settings.Default.MapPath;
             }
         }
@@ -69,28 +68,28 @@ namespace AoShinhoServ_Monitor.Forms
         {
         }
 
-        private void MapExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(MapPath, rAthenaTypes.MapSv);
+        private void MapExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(MapPath, rAthena.MapSv);
 
-        private void WebExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(WebPath, rAthenaTypes.WebSv);
+        private void WebExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(WebPath, rAthena.WebSv);
 
-        private void LoginExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(LoginPath, rAthenaTypes.LoginSv);
+        private void LoginExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(LoginPath, rAthena.LoginSv);
 
-        private void CharExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(CharPath, rAthenaTypes.CharSv);
+        private void CharExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(CharPath, rAthena.CharSv);
 
-        private void SaverAthenaFilePath(TextBox Box,rAthenaTypes Types)
+        private void SaverAthenaFilePath(TextBox Box,rAthena Types)
         {
             Box.Text = OpenPathDialogBox(Types);
             switch (Types)
             {
-                case rAthenaTypes.LoginSv:
+                case rAthena.LoginSv:
                     Properties.Settings.Default.LoginPath = Box.Text;
                     break;
 
-                case rAthenaTypes.CharSv:
+                case rAthena.CharSv:
                     Properties.Settings.Default.CharPath = Box.Text;
                     break;
 
-                case rAthenaTypes.WebSv:
+                case rAthena.WebSv:
                     Properties.Settings.Default.WebPath = Box.Text;
                     break;
 
