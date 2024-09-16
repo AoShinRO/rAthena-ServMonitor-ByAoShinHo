@@ -252,11 +252,26 @@ namespace AoShinhoServ_Monitor
             Brush color = GetWhiteModeColor();
 
             Do_Clear_All();
-            LoginBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Login Server is Waiting...", Paint = color }));
-            CharBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Char Server is Waiting...", Paint = color }));
-            MapBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Map Server is Waiting...", Paint = color }));
-            WebBox.Document.Blocks.Add(AppendColoredText(new rAthenaData { Header = "[Info] ", Body = "Web Server is Waiting...", Paint = color }));
+
+            rAthenaData Data = new rAthenaData
+            {
+                Header = "[Info]: ",
+                Paint = color,
+                Body = "Login Server is Waiting..."
+            };
+            Starting_Message_sub(LoginBox, Data);
+
+            Data.Body = "Char Server is Waiting...";
+            Starting_Message_sub(CharBox, Data);
+
+            Data.Body = "Web Server is Waiting...";
+            Starting_Message_sub(WebBox, Data);
+
+            Data.Body = "Map Server is Waiting...";
+            Starting_Message_sub(MapBox, Data);
         }
+
+        private void Starting_Message_sub(System.Windows.Controls.RichTextBox Box, rAthenaData Data) => Box.Document.Blocks.Add(AppendColoredText(Data));
 
         #region OptionWinRelated
 
@@ -307,9 +322,9 @@ namespace AoShinhoServ_Monitor
 
         #region LogWinRelated
 
-        public void Add_ErrorLog(rAthenaData error)
+        public void Add_ErrorLog(rAthenaData Data)
         {
-            errorLogs.Add(new rAthenaError { Header = error.Header, Body = error.Body });
+            errorLogs.Add(new rAthenaError { Header = Data.Header, Body = Data.Body });
             Task.Run(() => UpdateContextMenu());
         }
 
