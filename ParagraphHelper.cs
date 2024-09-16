@@ -1,28 +1,29 @@
 ﻿using System.Windows.Documents;
 using System.Windows.Media;
+using static AoShinhoServ_Monitor.Consts;
 
 namespace AoShinhoServ_Monitor
 {
     public static class ParagraphHelper
     {
-        public static Run ColoredText(string text, Brush typeColor)
+        public static Run RunColoredText(string text, Brush typeColor)
         {
             Run typeRun = new Run(text);
             typeRun.Foreground = typeColor;
             return typeRun;
         }
 
-        public static Paragraph AppendColoredText(string type, string info, Brush typeColor)
+        public static Paragraph AppendColoredText(rAthenaData Data)
         {
             Paragraph paragraph = new Paragraph();
-            paragraph.Inlines.Add(ColoredText(type, typeColor));
-            paragraph.Inlines.Add(ColoredText(info, GetMessageTypeColor(info)));
+            paragraph.Inlines.Add(RunColoredText(Data.SvType, Data.SvBrush));
+            paragraph.Inlines.Add(RunColoredText(Data.SvInfo, GetWhiteModeColor()));
             return paragraph;
         }
 
-        public static Brush GetMessageTypeColor(string messageType)
+        public static Brush GetMessageTypeColor(rAthenaData Data)
         {
-            switch (messageType)
+            switch (Data.SvType)
             {
                 case "[Error]":
                     return Brushes.Red;
@@ -40,10 +41,10 @@ namespace AoShinhoServ_Monitor
                 case "[Status]":
                     return Brushes.Green;
 
-                default: return WhiteModeColor();
+                default: return GetWhiteModeColor();
             }
         }
 
-        public static Brush WhiteModeColor(bool reverse = false) => (Properties.Settings.Default.WhiteMode && !reverse || !Properties.Settings.Default.WhiteMode && reverse) ? Brushes.Black : Brushes.White;
+        public static Brush GetWhiteModeColor(bool is_background = false) => (Properties.Settings.Default.WhiteMode && !is_background || !Properties.Settings.Default.WhiteMode && is_background) ? Brushes.Black : Brushes.White;
     }
 }

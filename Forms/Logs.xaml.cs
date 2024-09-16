@@ -2,7 +2,7 @@
 using System;
 using System.Windows;
 using Microsoft.Win32;
-using static AoShinhoServ_Monitor.MainDefs;
+using static AoShinhoServ_Monitor.Consts;
 
 namespace AoShinhoServ_Monitor.Forms
 {
@@ -36,7 +36,7 @@ namespace AoShinhoServ_Monitor.Forms
                     {
                         foreach (var log in errorLogs)
                         {
-                            writer.WriteLine($"{log.Type} {log.Content}");
+                            writer.WriteLine($"{log.SvType} {log.SvError}");
                         }
                     }
                 }

@@ -64,30 +64,30 @@
             </Rectangle>
             <Label x:Name="RestartBtn" Content="       Restart" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="154,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="StartBtn_MouseDown" MouseEnter="RestartBtn_MouseEnter" MouseLeave="RestartBtn_MouseLeave"/>
         </Grid>
-        <RichTextBox x:Name="Map" Margin="228,28,442,27" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="MapBox" Margin="228,28,442,27" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph x:Name="MapP" Margin="0">
+                <Paragraph x:Name="MapText" Margin="0">
                     <Run Text="Map Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <RichTextBox x:Name="Login" Margin="764,212,37,210" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="LoginBox" Margin="764,212,37,210" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph x:Name="LoginP" Margin="0">
+                <Paragraph x:Name="LoginText" Margin="0">
                     <Run Text="Login Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <RichTextBox x:Name="Char" Margin="764,27,37,395" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="CharBox" Margin="764,27,37,395" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph x:Name="CharP" Margin="0">
+                <Paragraph x:Name="CharText" Margin="0">
                     <Run Text="Char Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <RichTextBox x:Name="Web" Margin="764,395,37,27" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="WebBox" Margin="764,395,37,27" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
-                <Paragraph x:Name="WebP" Margin="0">
+                <Paragraph x:Name="WebText" Margin="0">
                     <Run Text="Web Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>

@@ -6,27 +6,27 @@ using System.Windows.Media;
 
 namespace AoShinhoServ_Monitor
 {
-    public class MainDefs
+    public class Consts
     {
-        public enum rAthena
+        public enum rAthenaTypes
         {
-            Map,
-            Login,
-            Char,
-            Web
+            MapSv,
+            LoginSv,
+            CharSv,
+            WebSv
         };
 
         public struct rAthenaError
         {
-            public string Type;
-            public string Content;
+            public string SvType;
+            public string SvError;
         }
 
         public struct rAthenaData
         {
-            public string type;
-            public string info;
-            public Brush Color;
+            public string SvType;
+            public string SvInfo;
+            public Brush SvBrush;
         }
 
         public static NotifyIcon _notifyIcon;

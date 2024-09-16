@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
 using System.Windows;
-using static AoShinhoServ_Monitor.MainDefs;
+using static AoShinhoServ_Monitor.Consts;
 
 namespace AoShinhoServ_Monitor
 {
@@ -70,31 +70,31 @@ namespace AoShinhoServ_Monitor
 
         #endregion ValidatePathConfig
 
-        public static rAthena Get_process_num(string Processname)
+        public static rAthenaTypes Get_process_num(string Processname)
         {
-            rAthena type = rAthena.Map;
+            rAthenaTypes type = rAthenaTypes.MapSv;
             Dictionary<string, Action> actions = new Dictionary<string, Action>();
 
             #region filldictionary
 
             actions.Add(Procnamecfg(Properties.Settings.Default.LoginPath).ToLowerInvariant(), () =>
             {
-                type = rAthena.Login;
+                type = rAthenaTypes.LoginSv;
             });
 
             actions.Add(Procnamecfg(Properties.Settings.Default.CharPath).ToLowerInvariant(), () =>
             {
-                type = rAthena.Char;
+                type = rAthenaTypes.CharSv;
             });
 
             actions.Add(Procnamecfg(Properties.Settings.Default.WebPath).ToLowerInvariant(), () =>
             {
-                type = rAthena.Web;
+                type = rAthenaTypes.WebSv;
             });
 
             actions.Add(Procnamecfg(Properties.Settings.Default.MapPath).ToLowerInvariant(), () =>
             {
-                type = rAthena.Map;
+                type = rAthenaTypes.MapSv;
             });
 
             #endregion filldictionary

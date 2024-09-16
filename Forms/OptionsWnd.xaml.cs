@@ -1,8 +1,9 @@
 ﻿using Microsoft.Win32;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using static AoShinhoServ_Monitor.MainDefs;
+using static AoShinhoServ_Monitor.Consts;
 
 namespace AoShinhoServ_Monitor.Forms
 {
@@ -18,20 +19,20 @@ namespace AoShinhoServ_Monitor.Forms
 
         #region Btn_Related
 
-        public string OpenPathDialogBox(rAthena type)
+        public string OpenPathDialogBox(rAthenaTypes type)
         {
             OpenFileDialog box;
             switch (type)
             {
-                case rAthena.Login:
+                case rAthenaTypes.LoginSv:
                     box = new OpenFileDialog { Filter = @"login-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
-                case rAthena.Char:
+                case rAthenaTypes.CharSv:
                     box = new OpenFileDialog { Filter = @"char-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
-                case rAthena.Web:
+                case rAthenaTypes.WebSv:
                     box = new OpenFileDialog { Filter = @"web-server (*.exe)|*.exe|All files (*.*)|*.*" };
                     break;
 
@@ -46,9 +47,9 @@ namespace AoShinhoServ_Monitor.Forms
 
             switch (type)
             {
-                case rAthena.Login: return Properties.Settings.Default.LoginPath;
-                case rAthena.Char: return Properties.Settings.Default.CharPath;
-                case rAthena.Web: return Properties.Settings.Default.WebPath;
+                case rAthenaTypes.LoginSv: return Properties.Settings.Default.LoginPath;
+                case rAthenaTypes.CharSv: return Properties.Settings.Default.CharPath;
+                case rAthenaTypes.WebSv: return Properties.Settings.Default.WebPath;
                 default: return Properties.Settings.Default.MapPath;
             }
         }
@@ -68,32 +69,36 @@ namespace AoShinhoServ_Monitor.Forms
         {
         }
 
-        private void MapExePath_Click(object sender, RoutedEventArgs e)
-        {
-            MapPath.Text = OpenPathDialogBox(rAthena.Map);
-            if (File.Exists(MapPath.Text))
-                Properties.Settings.Default.MapPath = MapPath.Text;
-        }
+        private void MapExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(MapPath, rAthenaTypes.MapSv);
 
-        private void WebExePath_Click(object sender, RoutedEventArgs e)
-        {
-            WebPath.Text = OpenPathDialogBox(rAthena.Web);
-            if (File.Exists(WebPath.Text))
-                Properties.Settings.Default.WebPath = WebPath.Text;
-        }
+        private void WebExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(WebPath, rAthenaTypes.WebSv);
 
-        private void LoginExePath_Click(object sender, RoutedEventArgs e)
-        {
-            LoginPath.Text = OpenPathDialogBox(rAthena.Login);
-            if (File.Exists(LoginPath.Text))
-                Properties.Settings.Default.LoginPath = LoginPath.Text;
-        }
+        private void LoginExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(LoginPath, rAthenaTypes.LoginSv);
 
-        private void CharExePath_Click(object sender, RoutedEventArgs e)
+        private void CharExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(CharPath, rAthenaTypes.CharSv);
+
+        private void SaverAthenaFilePath(TextBox Box,rAthenaTypes Types)
         {
-            CharPath.Text = OpenPathDialogBox(rAthena.Char);
-            if (File.Exists(CharPath.Text))
-                Properties.Settings.Default.CharPath = CharPath.Text;
+            Box.Text = OpenPathDialogBox(Types);
+            switch (Types)
+            {
+                case rAthenaTypes.LoginSv:
+                    Properties.Settings.Default.LoginPath = Box.Text;
+                    break;
+
+                case rAthenaTypes.CharSv:
+                    Properties.Settings.Default.CharPath = Box.Text;
+                    break;
+
+                case rAthenaTypes.WebSv:
+                    Properties.Settings.Default.WebPath = Box.Text;
+                    break;
+
+                default:
+                    Properties.Settings.Default.MapPath = Box.Text;
+                    break;
+                    
+            }
         }
 
         #endregion Btn_Related
