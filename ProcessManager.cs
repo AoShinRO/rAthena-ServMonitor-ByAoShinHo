@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
 using System.Windows;
+using System.Collections.Generic;
 using static AoShinhoServ_Monitor.Consts;
 
 namespace AoShinhoServ_Monitor
@@ -35,15 +35,16 @@ namespace AoShinhoServ_Monitor
         {
             try
             {
-                KillAll(Procnamecfg(Properties.Settings.Default.LoginPath));
-                KillAll(Procnamecfg(Properties.Settings.Default.CharPath));
-                KillAll(Procnamecfg(Properties.Settings.Default.WebPath));
-                KillAll(Procnamecfg(Properties.Settings.Default.MapPath));
+                KillAll(GetFileName(Properties.Settings.Default.LoginPath));
+                KillAll(GetFileName(Properties.Settings.Default.CharPath));
+                KillAll(GetFileName(Properties.Settings.Default.WebPath));
+                KillAll(GetFileName(Properties.Settings.Default.MapPath));
             }
             catch { }
         }
 
-        public static string Procnamecfg(string cfgname) => Path.GetFileNameWithoutExtension(cfgname);
+        public static string GetFileName(string FilePath) => System.IO.Path.GetFileNameWithoutExtension(FilePath);
+
         #region ValidatePathConfig
 
         public static bool CheckServerPath()
@@ -59,7 +60,7 @@ namespace AoShinhoServ_Monitor
 
         public static bool CheckMissingFile(string file, string mes)
         {
-            if (!File.Exists(file) || file == String.Empty)
+            if (!File.Exists(file) || file == string.Empty)
             {
                 MessageBox.Show($"File \"{mes}\" at \"{file}\" is missing");
                 return true;
@@ -70,36 +71,33 @@ namespace AoShinhoServ_Monitor
 
         #endregion ValidatePathConfig
 
-        public static rAthena Get_process_num(string Processname)
+        public static rAthena GetProcessType(Process rAthenaProcess)
         {
+            Dictionary<string, Action> rAthenaTypeMap = new Dictionary<string, Action>();
+            
             rAthena type = rAthena.MapSv;
-            Dictionary<string, Action> actions = new Dictionary<string, Action>();
 
-            #region filldictionary
-
-            actions.Add(Procnamecfg(Properties.Settings.Default.LoginPath).ToLowerInvariant(), () =>
+            rAthenaTypeMap.Add(GetFileName(Properties.Settings.Default.LoginPath).ToLowerInvariant(), () =>
             {
                 type = rAthena.LoginSv;
             });
 
-            actions.Add(Procnamecfg(Properties.Settings.Default.CharPath).ToLowerInvariant(), () =>
+            rAthenaTypeMap.Add(GetFileName(Properties.Settings.Default.CharPath).ToLowerInvariant(), () =>
             {
                 type = rAthena.CharSv;
             });
 
-            actions.Add(Procnamecfg(Properties.Settings.Default.WebPath).ToLowerInvariant(), () =>
+            rAthenaTypeMap.Add(GetFileName(Properties.Settings.Default.WebPath).ToLowerInvariant(), () =>
             {
                 type = rAthena.WebSv;
             });
 
-            actions.Add(Procnamecfg(Properties.Settings.Default.MapPath).ToLowerInvariant(), () =>
+            rAthenaTypeMap.Add(GetFileName(Properties.Settings.Default.MapPath).ToLowerInvariant(), () =>
             {
                 type = rAthena.MapSv;
             });
 
-            #endregion filldictionary
-
-            actions[Processname]?.Invoke();
+            rAthenaTypeMap[rAthenaProcess.ProcessName.ToLowerInvariant()]?.Invoke();
 
             return type;
         }

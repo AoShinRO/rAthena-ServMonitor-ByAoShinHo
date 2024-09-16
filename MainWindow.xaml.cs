@@ -150,7 +150,7 @@ namespace AoShinhoServ_Monitor
 
             #region SwitchProcess
 
-            switch (Get_process_num(((Process)sender).ProcessName.ToLowerInvariant()))
+            switch (GetProcessType((Process)sender))
             {
                 case rAthena.LoginSv:
                     Proc_Data2Box(LoginBox, Data);
@@ -220,7 +220,7 @@ namespace AoShinhoServ_Monitor
         {
             Application.Current.Dispatcher?.InvokeAsync(() =>
             {
-                switch (Get_process_num(((Process)sender).ProcessName.ToLower()))
+                switch (GetProcessType((Process)sender))
                 {
                     case rAthena.LoginSv:
                         LoginBox.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
@@ -286,7 +286,7 @@ namespace AoShinhoServ_Monitor
             OptWin.WhiteMode.Checked += OptionWin_Do_White_Mode;
             OptWin.WhiteMode.Unchecked += OptionWin_Do_White_Mode;
         }
-
+        
         private void OptionWin_Do_White_Mode(object sender, RoutedEventArgs e) => Do_White_Mode();
 
         private void Do_White_Mode()
