@@ -7,9 +7,9 @@
         xmlns:properties="clr-namespace:AoShinhoServ_Monitor.Properties"
         mc:Ignorable="d"
         Title="OptionsWnd" Height="220" Width="270" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" Background="Transparent">
-    <Grid>
-        <Rectangle Fill="AntiqueWhite" RadiusX="10" RadiusY="10" HorizontalAlignment="Left" Height="195" Margin="2,1,0,0" Stroke="Black" VerticalAlignment="Top" Width="245"/>
-        <Grid x:Name="OkayGrid" Margin="-48,133,36,-1">
+    <Grid Margin="0,0,0,-95">
+        <Rectangle Fill="AntiqueWhite" RadiusX="10" RadiusY="10" HorizontalAlignment="Left" Height="210" Margin="2,1,0,0" Stroke="Black" VerticalAlignment="Top" Width="245"/>
+        <Grid x:Name="OkayGrid" Margin="-48,149,143,93">
             <Rectangle x:Name="Okay_Button" HorizontalAlignment="Left" Height="40" Margin="55,15,0,0" VerticalAlignment="Top" Width="112" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -23,7 +23,7 @@
             </Rectangle>
             <Label x:Name="Okaylbl" Content="    Okay" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="55,15,0,0" VerticalAlignment="Top" Height="40" Width="112" MouseDown="Okaylbl_MouseDown" />
         </Grid>
-        <Grid x:Name="CancelGrid" Margin="72,133,-84,-1">
+        <Grid x:Name="CancelGrid" Margin="72,149,-84,93">
             <Rectangle x:Name="Cancel" HorizontalAlignment="Left" Height="40" Margin="55,15,0,0" VerticalAlignment="Top" Width="112" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -49,7 +49,7 @@
         <Button x:Name="WebExePath" Content="..." HorizontalAlignment="Left" Margin="217,94,0,0" VerticalAlignment="Top" Height="18" Width="23"  Click="WebExePath_Click" />
         <TextBox x:Name="WebPath" ToolTip="Your Web Path Here" HorizontalAlignment="Left" Margin="40,94,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=WebPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
         <Label Content="Web:" HorizontalAlignment="Left" Margin="2,90,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="WhiteMode" ToolTip="Change Text Box Collors" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode[Need Restart]" HorizontalAlignment="Left" Margin="14,115,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
-        <CheckBox x:Name="Debug" ToolTip="Ignore Loading Messages[More Faster Output]" IsChecked="{Binding DebugMode, Source={x:Static properties:Settings.Default}}" Content="#undef Detailed Loading Output" HorizontalAlignment="Left" Margin="14,131,0,0" VerticalAlignment="Top" />
+        <CheckBox x:Name="WhiteMode" ToolTip="Change Text Box Collors" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode" HorizontalAlignment="Left" Margin="14,120,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
+        <CheckBox x:Name="Debug" ToolTip="Ignore Loading Messages[More Faster Output]" IsChecked="{Binding DebugMode, Source={x:Static properties:Settings.Default}}" Content="Skip Loading Messages" HorizontalAlignment="Left" Margin="14,139,0,0" VerticalAlignment="Top" />
     </Grid>
 </Window>

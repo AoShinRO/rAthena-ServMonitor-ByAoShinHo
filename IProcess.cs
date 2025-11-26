@@ -21,29 +21,20 @@ namespace AoShinhoServ_Monitor
             }
             catch(Exception ex)
             {
-                MessageBox.Show($"Failed to find Process {ProcessName} {ex.Message}");
+                ErrorHandler.ShowError(ex.Message, $"Failed to find Process {ProcessName}");
                 return;
             }
             foreach (Process process in processes)
-            {
-                try
-                {
-                    process.Kill();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Failed to Killing Process {ProcessName} {ex.Message}");
-                }
-            }
-
+                process.Kill();
+            
         }
 
         public static bool Do_Kill_All()
         {
-            KillAll(GetFileName(Properties.Settings.Default.LoginPath));
-            KillAll(GetFileName(Properties.Settings.Default.CharPath));
-            KillAll(GetFileName(Properties.Settings.Default.WebPath));
-            KillAll(GetFileName(Properties.Settings.Default.MapPath));
+            KillAll(GetFileName(Configuration.LoginPath));
+            KillAll(GetFileName(Configuration.CharPath));
+            KillAll(GetFileName(Configuration.WebPath));
+            KillAll(GetFileName(Configuration.MapPath));
             return true;
         }
 
@@ -53,10 +44,10 @@ namespace AoShinhoServ_Monitor
 
         public static bool CheckServerPath()
         {
-            if (CheckMissingFile(Properties.Settings.Default.LoginPath, "login-server.exe") ||
-               CheckMissingFile(Properties.Settings.Default.CharPath, "char-server.exe") ||
-               CheckMissingFile(Properties.Settings.Default.WebPath, "web-server.exe") ||
-               CheckMissingFile(Properties.Settings.Default.MapPath, "map-server.exe"))
+            if (CheckMissingFile(Configuration.LoginPath, "login-server.exe") ||
+               CheckMissingFile(Configuration.CharPath, "char-server.exe") ||
+               CheckMissingFile(Configuration.WebPath, "web-server.exe") ||
+               CheckMissingFile(Configuration.MapPath, "map-server.exe"))
                 return false;
 
             return true;
@@ -66,7 +57,7 @@ namespace AoShinhoServ_Monitor
         {
             if (!File.Exists(file) || file == string.Empty)
             {
-                MessageBox.Show($"File \"{mes}\" at \"{file}\" is missing");
+                ErrorHandler.ShowError($"File \"{mes}\" at \"{file}\" is missing", "Missing File");
                 return true;
             }
 
@@ -80,13 +71,13 @@ namespace AoShinhoServ_Monitor
             rAthena.Type type;
             switch (rAthenaProcess.ProcessName.ToLowerInvariant())
             {
-                case var n when n == GetFileName(Properties.Settings.Default.LoginPath).ToLowerInvariant():
+                case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
                     type = rAthena.Type.Login;
                     break;
-                case var n when n == GetFileName(Properties.Settings.Default.CharPath).ToLowerInvariant():
+                case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
                     type = rAthena.Type.Char;
                     break;
-                case var n when n == GetFileName(Properties.Settings.Default.WebPath).ToLowerInvariant():
+                case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
                     type = rAthena.Type.Web;
                     break;
                 default:

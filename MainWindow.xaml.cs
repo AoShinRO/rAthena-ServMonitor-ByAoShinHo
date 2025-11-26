@@ -60,24 +60,15 @@ namespace AoShinhoServ_Monitor
         #region ProcesingInfo
         public bool Do_Run_All()
         {
-            List<Process> ProcessList = new List<Process>
-            {
-                RunWithRedirect(Properties.Settings.Default.LoginPath),
-                RunWithRedirect(Properties.Settings.Default.CharPath),
-                RunWithRedirect(Properties.Settings.Default.WebPath),
-                RunWithRedirect(Properties.Settings.Default.MapPath)
-            };
-            foreach (Process p in ProcessList)
-            {
-                p.Start();
-                p.BeginErrorReadLine();
-                p.BeginOutputReadLine();
-            }
+            RunWithRedirect(Configuration.LoginPath);
+            RunWithRedirect(Configuration.CharPath);
+            RunWithRedirect(Configuration.WebPath);
+            RunWithRedirect(Configuration.MapPath);
                 
             return true;
         }
 
-        public Process RunWithRedirect(string cmdPath)
+        public void RunWithRedirect(string cmdPath)
         {
             try
             {
@@ -97,7 +88,9 @@ namespace AoShinhoServ_Monitor
                 process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
                 process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
                 process.Exited += new EventHandler(Proc_HasExited);
-                return process;
+                process.Start();
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
             }
             catch (Exception ex)
             {
@@ -105,41 +98,46 @@ namespace AoShinhoServ_Monitor
             }
         }
 
+        private static rAthena.Data ParseServerData(string rawData)
+        {
+            var data = new rAthena.Data();
+            int endIndex = rawData.IndexOf("]");
+
+            if (endIndex != -1)
+            {
+                data.Header = rawData.Substring(0, endIndex + 1);
+                data.Body = rawData.Substring(endIndex + 1);
+                if (data.Header == "[Status]")
+                {
+                    if (rawData.Contains("set users"))
+                        data.Header = "[Users]";
+                    else if ((Properties.Settings.Default.DebugMode && rawData.Contains("Loading")) ||
+                             ILogging.LastErrorLog.Header == "[Status]" && rawData.Contains("Loading maps"))
+                    {
+                        data.Body = "";
+                        return data;
+                    }
+                }
+            }
+            else
+            {
+                data.Header = "";
+                data.Body = rawData;
+            }
+
+            data.Paint = IText.GetMessageTypeColor(data);
+            return data;
+        }
+
         public void Proc_DataReceived(object sender, DataReceivedEventArgs e)
         {
             if (e.Data == null)
                 return;
 
-            #region preprocessinginfo
-
-            rAthena.Data Data = new rAthena.Data();
-            int endIndex = e.Data.IndexOf("]");
-
-            if (endIndex != -1)
-            {
-                Data.Header = e.Data.Substring(0, endIndex + 1);
-                Data.Body = e.Data.Substring(endIndex + 1);
-                if (Data.Header == "[Status]")
-                {
-                    if (e.Data.Contains("set users"))
-                        Data.Header = "[Users]";
-                    else if ((Properties.Settings.Default.DebugMode && e.Data.Contains("Loading")) || ILogging.LastErrorLog.Header == "[Status]" && e.Data.Contains("Loading maps"))
-                        return;
-                }
-            }
-            else
-            {
-                Data.Header = "";
-                Data.Body = e.Data;
-                if (ILogging.LastErrorLog.Header == "[Error]")
-                    ILogging.Add_ErrorLog(Data);
-            }
-
-            Data.Paint = IText.GetMessageTypeColor(Data);
-
+            var Data = ParseServerData(e.Data);
+            if (Data.Body == "") return;
+            
             ILogging.LastErrorLog = Data;
-
-            #endregion preprocessinginfo
 
             #region SwitchProcess
 

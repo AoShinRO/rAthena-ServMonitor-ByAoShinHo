@@ -78,6 +78,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="ErrorHandler.cs" />
     <Compile Include="IAnimation.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

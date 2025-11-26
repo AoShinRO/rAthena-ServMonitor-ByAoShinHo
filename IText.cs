@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace AoShinhoServ_Monitor
 {
-    public class IText
+    public static class IText
     {
         public static Run RunColoredText(string text, Brush typeColor)
         {

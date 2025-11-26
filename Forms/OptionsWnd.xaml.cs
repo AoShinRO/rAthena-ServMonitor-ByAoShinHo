@@ -45,10 +45,10 @@ namespace AoShinhoServ_Monitor.Forms
 
             switch (type)
             {
-                case rAthena.Type.Login: return Properties.Settings.Default.LoginPath;
-                case rAthena.Type.Char: return Properties.Settings.Default.CharPath;
-                case rAthena.Type.Web: return Properties.Settings.Default.WebPath;
-                default: return Properties.Settings.Default.MapPath;
+                case rAthena.Type.Login: return Configuration.LoginPath;
+                case rAthena.Type.Char: return Configuration.CharPath;
+                case rAthena.Type.Web: return Configuration.WebPath;
+                default: return Configuration.MapPath;
             }
         }
 
@@ -81,19 +81,19 @@ namespace AoShinhoServ_Monitor.Forms
             switch (Types)
             {
                 case rAthena.Type.Login:
-                    Properties.Settings.Default.LoginPath = Box.Text;
+                    Configuration.LoginPath = Box.Text;
                     break;
 
                 case rAthena.Type.Char:
-                    Properties.Settings.Default.CharPath = Box.Text;
+                    Configuration.CharPath = Box.Text;
                     break;
 
                 case rAthena.Type.Web:
-                    Properties.Settings.Default.WebPath = Box.Text;
+                    Configuration.WebPath = Box.Text;
                     break;
 
                 default:
-                    Properties.Settings.Default.MapPath = Box.Text;
+                    Configuration.MapPath = Box.Text;
                     break;
                     
             }
