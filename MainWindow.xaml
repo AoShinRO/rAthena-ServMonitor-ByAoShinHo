@@ -102,6 +102,6 @@
         <Button x:Name="ShowLogsBtn" Content="Logs" HorizontalAlignment="Left" Margin="23,122,0,0" VerticalAlignment="Top" Width="181" Click="ShowLogsBtn_Click" />
         <Label x:Name="xBtn" Content="X" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1155,0,0,0" VerticalAlignment="Top" MouseDown="XBtn_MouseDown" />
         <Label x:Name="MinimizeBtn" Content="_" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1135,-2,0,0" VerticalAlignment="Top" MouseDown="MinimizeBtn_MouseDown" />
-        <TextBlock HorizontalAlignment="Left" Margin="862,4,0,0" FontSize="14" FontWeight="Bold" Foreground="Black" TextWrapping="Wrap" Text="rAthena Server Monitor By AoShinHo" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="832,4,0,0" FontSize="14" FontWeight="Bold" Foreground="Black" TextWrapping="Wrap" Text="rAthena Server Monitor By AoShinHo v1.0.4" VerticalAlignment="Top"/>
     </Grid>
 </Window>
