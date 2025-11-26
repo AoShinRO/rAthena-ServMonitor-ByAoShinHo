@@ -2,7 +2,6 @@
 using System;
 using System.Windows;
 using Microsoft.Win32;
-using static AoShinhoServ_Monitor.Consts;
 
 namespace AoShinhoServ_Monitor.Forms
 {
@@ -34,7 +33,7 @@ namespace AoShinhoServ_Monitor.Forms
                 {
                     using (StreamWriter writer = new StreamWriter(filePath))
                     {
-                        foreach (var log in errorLogs)
+                        foreach (var log in ILogging.errorLogs)
                         {
                             writer.WriteLine($"{log.Header} {log.Body}");
                         }
