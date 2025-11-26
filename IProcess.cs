@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Diagnostics;
-using System.Windows;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 namespace AoShinhoServ_Monitor
 {

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using static AoShinhoServ_Monitor.IAnimation;
 using Application = System.Windows.Application;
 using NotifyIcon = System.Windows.Forms.NotifyIcon;
 
@@ -319,7 +316,7 @@ namespace AoShinhoServ_Monitor
 
         private void OptionWin_Okay(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.Save();
+            Configuration.Save();
             ILogging.OptWin.Hide();
         }
 
@@ -396,6 +393,7 @@ namespace AoShinhoServ_Monitor
         private void Do_End()
         {
             IProcess.Do_Kill_All();
+            Configuration.Save();
             ILogging.LogWin.Close();
             ILogging.OptWin.Close();
         }
@@ -412,29 +410,29 @@ namespace AoShinhoServ_Monitor
 
         #region btn_animation
 
-        private void OptionWin_Enter(object sender, RoutedEventArgs e) => F_Grid_Animate(ILogging.OptWin.OkayGrid, ILogging.OptionSaveMargin, true);
+        private void OptionWin_Enter(object sender, RoutedEventArgs e) => IAnimation.F_Grid(ILogging.OptWin.OkayGrid, ILogging.OptionSaveMargin, true);
 
-        private void OptionWin_Leave(object sender, RoutedEventArgs e) => F_Grid_Animate(ILogging.OptWin.OkayGrid, ILogging.OptionSaveMargin);
+        private void OptionWin_Leave(object sender, RoutedEventArgs e) => IAnimation.F_Grid(ILogging.OptWin.OkayGrid, ILogging.OptionSaveMargin);
 
-        private void OptionWin_Cancel_Enter(object sender, RoutedEventArgs e) => F_Grid_Animate(ILogging.OptWin.CancelGrid, ILogging.OptionCancelMargin, true);
+        private void OptionWin_Cancel_Enter(object sender, RoutedEventArgs e) => IAnimation.F_Grid(ILogging.OptWin.CancelGrid, ILogging.OptionCancelMargin, true);
 
-        private void OptionWin_Cancel_Leave(object sender, RoutedEventArgs e) => F_Grid_Animate(ILogging.OptWin.CancelGrid, ILogging.OptionCancelMargin);
+        private void OptionWin_Cancel_Leave(object sender, RoutedEventArgs e) => IAnimation.F_Grid(ILogging.OptWin.CancelGrid, ILogging.OptionCancelMargin);
 
-        private void StartBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(StartGrid, ILogging.StartMargin, true);
+        private void StartBtn_MouseEnter(object sender, MouseEventArgs e) => IAnimation.F_Grid(StartGrid, ILogging.StartMargin, true);
 
-        private void StartBtn_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(StartGrid, ILogging.StartMargin);
+        private void StartBtn_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(StartGrid, ILogging.StartMargin);
 
-        private void OptionWin_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(OptGrid, ILogging.OptionMargin, true);
+        private void OptionWin_MouseEnter(object sender, MouseEventArgs e) => IAnimation.F_Grid(OptGrid, ILogging.OptionMargin, true);
 
-        private void OptionWin_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(OptGrid, ILogging.OptionMargin);
+        private void OptionWin_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(OptGrid, ILogging.OptionMargin);
 
-        private void StopBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(StopGrid, ILogging.StopMargin, true);
+        private void StopBtn_MouseEnter(object sender, MouseEventArgs e) => IAnimation.F_Grid(StopGrid, ILogging.StopMargin, true);
 
-        private void StopBtn_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(StopGrid, ILogging.StopMargin);
+        private void StopBtn_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(StopGrid, ILogging.StopMargin);
 
-        private void RestartBtn_MouseEnter(object sender, MouseEventArgs e) => F_Grid_Animate(RestartGrid, ILogging.RestartMargin, true);
+        private void RestartBtn_MouseEnter(object sender, MouseEventArgs e) => IAnimation.F_Grid(RestartGrid, ILogging.RestartMargin, true);
 
-        private void RestartBtn_MouseLeave(object sender, MouseEventArgs e) => F_Grid_Animate(RestartGrid, ILogging.RestartMargin);
+        private void RestartBtn_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(RestartGrid, ILogging.RestartMargin);
 
         #endregion btn_animation
 
