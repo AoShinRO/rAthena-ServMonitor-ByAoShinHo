@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,8 +32,22 @@ namespace AoShinhoServ_Monitor
             ILogging.StopMargin = StopGrid.Margin;
             ILogging.OptionMargin = OptGrid.Margin;
             ILogging.RestartMargin = RestartGrid.Margin;
+            ILogging.CompileMargin = CompileGrid.Margin;
             ILogging.OptionCancelMargin = ILogging.OptWin.CancelGrid.Margin;
             ILogging.OptionSaveMargin = ILogging.OptWin.OkayGrid.Margin;
+            if(!Properties.Settings.Default.DevMode)
+            {
+                DevBox.Visibility=Visibility.Hidden;
+                CompileGrid.Visibility=Visibility.Hidden;
+                ILogging.OptWin.CmakeMode.Visibility = Visibility.Hidden;
+                ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Hidden;
+                ApplyRoundedCorners(5);
+            }
+            else
+            {
+                Height = 780;
+                ApplyRoundedCorners(10);
+            }
         }
 
         #region CoreFunctions
@@ -52,6 +67,7 @@ namespace AoShinhoServ_Monitor
             CharBox.Document.Blocks.Clear();
             MapBox.Document.Blocks.Clear();
             WebBox.Document.Blocks.Clear();
+            DevBox.Document.Blocks.Clear();
             ILogging.errorLogs.Clear();
             ILogging.LogWin.LogsRTB.Document.Blocks.Clear();
         }
@@ -72,25 +88,83 @@ namespace AoShinhoServ_Monitor
             return true;
         }
 
-        public async Task RunWithRedirectAsync(string cmdPath)
+        public async Task RunWithRedirectAsync(string cmdPath, bool isCompiler = false)
         {
             await Task.Run(() =>
             {
                 try
                 {
+                    string cmd = cmdPath;
+                    string path = cmd.Substring(0, cmd.LastIndexOf('\\'));
+                    if (isCompiler)
+                    {
+                        string projectname = path;
+                        if (!IProcess.CheckMissingFile(projectname + "/rAthena.sln", "rAthena.sln"))
+                            projectname = "rAthena.sln";
+                        else if (!IProcess.CheckMissingFile(projectname + "/brHades.sln", "brHades.sln"))
+                            projectname = "brHades.sln";
+                        else if (!IProcess.CheckMissingFile(projectname + "/Hercules.sln", "Hercules.sln"))
+                            projectname = "Hercules.sln";
+                        else
+                        {
+                            ErrorHandler.ShowError("Failed to find a valid .sln", "Error");
+                            return;
+                        }
+                        if (Properties.Settings.Default.UseCMake)
+                        {
+                            cmd = @"cmake -G ""Unix Makefiles"" -DINSTALL_TO_SOURCE=ON";
+                            if (projectname == "brHades.sln")
+                                cmd += " -DCMAKE_CXX_STANDARD=20";
+
+                            cmd += " -DCMAKE_BUILD_TYPE=RelWithDebInfo ..";
+
+                            Process configProcess = CreateCMake(cmd, path);
+                            configProcess.Start();
+                            configProcess.BeginErrorReadLine();
+                            configProcess.BeginOutputReadLine();
+                            configProcess.WaitForExit();
+
+                            cmd = @"make install";
+                            Process buildProcess = CreateCMake(cmd, path);
+                            buildProcess.Start();
+                            buildProcess.BeginErrorReadLine();
+                            buildProcess.BeginOutputReadLine();
+                            return;
+                        }
+                        else
+                        {
+                            if (Properties.Settings.Default.PreRenewal)
+                                cmd = $@"msbuild {projectname} -t:build -property:Configuration=Release /p:DefineConstants=""PRERE""";
+                            else
+                                cmd = $@"msbuild {projectname} -t:build -property:Configuration=Release";
+
+                            if(projectname == "brHades.sln")
+                                cmd += @" /p:CppLanguageStandard=stdcpp20";
+
+                            cmd += " /warnaserror";
+                        }
+                    }
+
                     Process process = new Process()
                     {
                         StartInfo =
                         {
-                            FileName = cmdPath,
+                            FileName = cmd,
                             UseShellExecute = false,
-                            WorkingDirectory = cmdPath.Substring(0, cmdPath.LastIndexOf('\\')),
+                            WorkingDirectory = path,
                             RedirectStandardOutput = true,
                             RedirectStandardError = true
                         },
                         EnableRaisingEvents = true
                     };
+                    if (isCompiler)
+                    {
+                        process.StartInfo.FileName = "cmd.exe";
+                        process.StartInfo.Arguments = $"/c {cmd}";
+                    }
                     process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.StandardOutputEncoding = new UTF8Encoding(false);
+                    process.StartInfo.StandardErrorEncoding = new UTF8Encoding(false);
                     process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
                     process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
                     process.Exited += new EventHandler(Proc_HasExited);
@@ -100,9 +174,35 @@ namespace AoShinhoServ_Monitor
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"{ex.Message} {ex.StackTrace}");
+                    ErrorHandler.ShowError(ex.StackTrace, ex.Message);
                 }
             });
+        }
+
+        private Process CreateCMake(string cmd, string path)
+        {
+            Process process = new Process()
+            {
+                StartInfo =
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {cmd}",
+                    UseShellExecute = false,
+                    WorkingDirectory = path,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                },
+                EnableRaisingEvents = true
+            };
+
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.StandardOutputEncoding = new UTF8Encoding(false);
+            process.StartInfo.StandardErrorEncoding = new UTF8Encoding(false);
+            process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
+            process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
+            process.Exited += new EventHandler(Proc_HasExited);
+
+            return process;
         }
 
         private static rAthena.Data ParseServerData(string rawData)
@@ -118,7 +218,7 @@ namespace AoShinhoServ_Monitor
                 {
                     if (rawData.Contains("set users"))
                         data.Header = "[Users]";
-                    else if ((Properties.Settings.Default.DebugMode && rawData.Contains("Loading")) ||
+                    else if ((Properties.Settings.Default.DebugMode && ( rawData.Contains("Loading") || rawData.Contains("Carregando"))) ||
                              ILogging.LastErrorLog.Header == "[Status]" && rawData.Contains("Loading maps"))
                     {
                         data.Body = "";
@@ -161,6 +261,10 @@ namespace AoShinhoServ_Monitor
 
                 case rAthena.Type.Web:
                     Proc_Data2Box(WebBox, Data);
+                    break;
+
+                case rAthena.Type.DevConsole:
+                    Proc_Data2Box(DevBox, Data);
                     break;
 
                 default:
@@ -235,6 +339,12 @@ namespace AoShinhoServ_Monitor
                         WebBox.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
                         break;
 
+                    case rAthena.Type.DevConsole:
+                        DevBox.AppendText(Environment.NewLine + ">>Dev Console - stopped<<");
+                        CompileGrid.Visibility = Visibility.Visible;
+                        StartGrid.Visibility = Visibility.Visible;
+                        break;
+
                     default:
                         MapBox.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
                         break;
@@ -261,6 +371,8 @@ namespace AoShinhoServ_Monitor
             ILogging.OptWin.Cancellbl.MouseLeave += OptionWin_Cancel_Leave;
             ILogging.OptWin.WhiteMode.Checked += OptionWin_Do_White_Mode;
             ILogging.OptWin.WhiteMode.Unchecked += OptionWin_Do_White_Mode;
+            ILogging.OptWin.DevMode.Checked += OptionWin_Do_DevMode_Mode_On;
+            ILogging.OptWin.DevMode.Unchecked += OptionWin_Do_DevMode_Mode_Off;
         }
         private void InitializeNotifyIcon()
         {
@@ -310,17 +422,19 @@ namespace AoShinhoServ_Monitor
             MapBox.Background =
             CharBox.Background =
             LoginBox.Background =
+            DevBox.Background =
             WebBox.Background = Background;
-
+            
             MapText.Foreground =
             LoginText.Foreground =
             CharText.Foreground =
+            DevText.Foreground =
             WebText.Foreground = Foreground;
 
             if (!ILogging.OnOff)
             {
                 Do_Clear_All();
-                IText.Do_Starting_Message(CharBox,LoginBox,MapBox,WebBox);
+                IText.Do_Starting_Message(CharBox,LoginBox,MapBox,WebBox,DevBox);
             }
         }
 
@@ -334,7 +448,31 @@ namespace AoShinhoServ_Monitor
 
         private void OptionWin_Cancel(object sender, RoutedEventArgs e) => ILogging.OptWin.Hide();
 
+        private void OptionWin_Do_DevMode_Mode_On(object sender, RoutedEventArgs e)
+        {
+            CompileGrid.Visibility = Visibility.Visible;
+            DevBox.Visibility = Visibility.Visible;
+            ILogging.OptWin.CmakeMode.Visibility = Visibility.Visible;
+            ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Visible;
+            Height = 780;
+            ApplyRoundedCorners(10);
+        }
+
+        private void OptionWin_Do_DevMode_Mode_Off(object sender, RoutedEventArgs e)
+        {
+            CompileGrid.Visibility = Visibility.Hidden;
+            DevBox.Visibility = Visibility.Hidden;
+            ILogging.OptWin.CmakeMode.Visibility = Visibility.Hidden;
+            ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Hidden;
+            Height = 600;
+            ApplyRoundedCorners(5);
+        }
         #endregion OptionWinRelated
+
+        private void ApplyRoundedCorners(int radius)
+        {
+            Clip = new RectangleGeometry(new Rect(0, 0, Width, Height), radius, radius);
+        }
 
         #region Btn_related
 
@@ -449,5 +587,19 @@ namespace AoShinhoServ_Monitor
         #endregion btn_animation
 
         #endregion Btn_related
+
+        private async void CompileBtn_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            DevBox.Document.Blocks.Clear();
+            CompileGrid.Visibility = Visibility.Collapsed;
+            StartGrid.Visibility = Visibility.Collapsed;
+            RestartGrid.Visibility = Visibility.Collapsed;
+            IProcess.Do_Kill_All();
+            await Task.Run(() => RunWithRedirectAsync(Configuration.MapPath, true));
+        }
+
+        private void CompileBtn_MouseEnter(object sender, MouseEventArgs e) => IAnimation.F_Grid(CompileGrid, ILogging.CompileMargin, true);
+
+        private void CompileBtn_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(CompileGrid, ILogging.CompileMargin);
     }
 }

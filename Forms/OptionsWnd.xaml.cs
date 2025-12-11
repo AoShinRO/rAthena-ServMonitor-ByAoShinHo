@@ -99,8 +99,37 @@ namespace AoShinhoServ_Monitor.Forms
             }
         }
 
+
         #endregion Btn_Related
 
+        private void DevMode_Checked(object sender, RoutedEventArgs e)
+        {
 
+        }
+
+        private void DevMode_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CmakeMode_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CmakeMode_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PreRenewalMode_Unchecked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PreRenewalMode_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

@@ -6,10 +6,18 @@
         xmlns:local="clr-namespace:AoShinhoServ_Monitor"
         mc:Ignorable="d"
         Title="ServerMonitor" Height="600" Width="1200" WindowStyle="None" WindowStartupLocation="CenterScreen"  AllowsTransparency="True" Background="Transparent" Closing="Window_Closing">
-    <Grid x:Name="Program" MouseMove="Program_MouseMove">
-        <Image x:Name="BG" Source="Images/background.png" MouseDown="BG_MouseDown" MouseUp="BG_MouseUp" Margin="0,1,0,-1" />
-        <Grid x:Name="OptGrid" Margin="-53,514,987,14">
-            <Rectangle x:Name="Options_Button" HorizontalAlignment="Left" Height="40" Margin="86,0,0,0" VerticalAlignment="Center" Width="156" RadiusY="5" RadiusX="5">
+    <Grid x:Name="Program" MouseMove="Program_MouseMove" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="97*"/>
+            <ColumnDefinition Width="23*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Image x:Name="BG" Source="Images/background.png" MouseDown="BG_MouseDown" MouseUp="BG_MouseUp" Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Left" Stretch="UniformToFill" />
+        <Grid x:Name="OptGrid" Margin="-53,514,0,0" Height="72" VerticalAlignment="Top" HorizontalAlignment="Left" Width="266">
+            <Rectangle x:Name="Options_Button" HorizontalAlignment="Left" Height="40" Margin="86,16,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FFFF9D58" />
@@ -20,9 +28,9 @@
                     <DropShadowEffect Opacity="0.3" ShadowDepth="2.6" BlurRadius="3" />
                 </Rectangle.Effect>
             </Rectangle>
-            <Label x:Name="OptionWin" Content="      Options" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="87,0,0,0" VerticalAlignment="Center" Height="40" Width="154" MouseDown="OptionWin_MouseDown" MouseEnter="OptionWin_MouseEnter" MouseLeave="OptionWin_MouseLeave" />
+            <Label x:Name="OptionWin" Content="      Options" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="87,16,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="OptionWin_MouseDown" MouseEnter="OptionWin_MouseEnter" MouseLeave="OptionWin_MouseLeave" />
         </Grid>
-        <Grid x:Name="StopGrid" Margin="-122,469,1002,69">
+        <Grid x:Name="StopGrid" Margin="-122,469,772,69">
             <Rectangle x:Name="Stop_Button" HorizontalAlignment="Left" Height="40" Margin="154,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -36,7 +44,7 @@
             </Rectangle>
             <Label x:Name="StopBtn" Content="         Stop" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="154,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="StopBtn_MouseDown" MouseEnter="StopBtn_MouseEnter" MouseLeave="StopBtn_MouseLeave"/>
         </Grid>
-        <Grid x:Name="StartGrid" Margin="-97,422,997,114">
+        <Grid x:Name="StartGrid" Margin="-97,422,767,114">
             <Rectangle x:Name="Start_Button" HorizontalAlignment="Left" Height="40" Margin="128,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -50,7 +58,7 @@
             </Rectangle>
             <Label x:Name="StartBtn" Content="         Start" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="130,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="StartBtn_MouseDown" MouseEnter="StartBtn_MouseEnter" MouseLeave="StartBtn_MouseLeave" />
         </Grid>
-        <Grid x:Name="RestartGrid" Margin="-123,422,1003,116" Visibility="Collapsed">
+        <Grid x:Name="RestartGrid" Margin="-123,422,773,116" Visibility="Collapsed">
             <Rectangle x:Name="Restart_Button" HorizontalAlignment="Left" Height="40" Margin="154,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -64,31 +72,52 @@
             </Rectangle>
             <Label x:Name="RestartBtn" Content="       Restart" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="154,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="StartBtn_MouseDown" MouseEnter="RestartBtn_MouseEnter" MouseLeave="RestartBtn_MouseLeave"/>
         </Grid>
-        <RichTextBox x:Name="MapBox" Margin="228,28,442,27" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <Grid x:Name="CompileGrid" Margin="-98,692,768,-156">
+            <Rectangle x:Name="Compile_Button" HorizontalAlignment="Left" Height="40" Margin="128,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
+                <Rectangle.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFFF9D58" />
+                        <GradientStop Color="#FFA46234" Offset="1" />
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+                <Rectangle.Effect>
+                    <DropShadowEffect Opacity="0.3" ShadowDepth="2.6" BlurRadius="3" />
+                </Rectangle.Effect>
+            </Rectangle>
+            <Label x:Name="CompileBtn" Content="   Re-Compile" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="130,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="CompileBtn_MouseDown" MouseEnter="CompileBtn_MouseEnter" MouseLeave="CompileBtn_MouseLeave" />
+        </Grid>
+        <RichTextBox x:Name="MapBox" Margin="228,28,0,0" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged" Height="544" VerticalAlignment="Top" HorizontalAlignment="Left" Width="530">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
                 <Paragraph x:Name="MapText" Margin="0">
                     <Run Text="Map Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <RichTextBox x:Name="LoginBox" Margin="764,212,37,210" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="LoginBox" Margin="764,211,0,0" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged" Grid.ColumnSpan="2" Height="178" VerticalAlignment="Top" HorizontalAlignment="Left" Width="399">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
                 <Paragraph x:Name="LoginText" Margin="0">
                     <Run Text="Login Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <RichTextBox x:Name="CharBox" Margin="764,27,37,395" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="CharBox" Margin="764,27,0,0" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="399" Height="178" VerticalAlignment="Top">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
                 <Paragraph x:Name="CharText" Margin="0">
                     <Run Text="Char Server is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <RichTextBox x:Name="WebBox" Margin="764,395,37,27" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged">
+        <RichTextBox x:Name="WebBox" Margin="764,395,0,0" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged" Grid.ColumnSpan="2" Height="178" VerticalAlignment="Top" HorizontalAlignment="Left" Width="399">
             <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
                 <Paragraph x:Name="WebText" Margin="0">
                     <Run Text="Web Server is Waiting..."  Foreground="White" />
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <RichTextBox x:Name="DevBox" Margin="228,578,0,0" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged" Grid.ColumnSpan="2" Height="178" Grid.RowSpan="2" VerticalAlignment="Top" HorizontalAlignment="Left" Width="935">
+            <FlowDocument FontWeight="Bold" FontSize="14" FontFamily="Calibri" LineHeight="1">
+                <Paragraph x:Name="DevText" Margin="0">
+                    <Run Text="Compiler is Waiting..."  Foreground="White" />
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
@@ -100,8 +129,8 @@
         <TextBlock x:Name="lb_online" FontSize="50" Foreground="White" HorizontalAlignment="Left" Margin="115,27,0,0" TextWrapping="NoWrap" Text="0" TextAlignment="Center" VerticalAlignment="Top" Height="64" Width="87" />
         <TextBlock FontSize="15" Foreground="White" HorizontalAlignment="Left" Margin="137,83,0,0" TextWrapping="NoWrap" Text="online" VerticalAlignment="Top" Height="20" Width="49" />
         <Button x:Name="ShowLogsBtn" Content="Logs" HorizontalAlignment="Left" Margin="23,122,0,0" VerticalAlignment="Top" Width="181" Click="ShowLogsBtn_Click" />
-        <Label x:Name="xBtn" Content="X" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1155,0,0,0" VerticalAlignment="Top" MouseDown="XBtn_MouseDown" />
-        <Label x:Name="MinimizeBtn" Content="_" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="1135,-2,0,0" VerticalAlignment="Top" MouseDown="MinimizeBtn_MouseDown" />
-        <TextBlock HorizontalAlignment="Left" Margin="832,4,0,0" FontSize="14" FontWeight="Bold" Foreground="Black" TextWrapping="Wrap" Text="rAthena Server Monitor By AoShinHo v1.0.4" VerticalAlignment="Top"/>
+        <Label x:Name="xBtn" Content="X" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="185,0,0,0" VerticalAlignment="Top" MouseDown="XBtn_MouseDown" Grid.Column="1" />
+        <Label x:Name="MinimizeBtn" Content="_" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Left" Margin="165,-2,0,0" VerticalAlignment="Top" MouseDown="MinimizeBtn_MouseDown" Grid.Column="1" />
+        <TextBlock HorizontalAlignment="Left" Margin="832,4,0,0" FontSize="14" FontWeight="Bold" Foreground="Black" TextWrapping="Wrap" Text="rAthena Server Monitor By AoShinHo v1.0.4" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

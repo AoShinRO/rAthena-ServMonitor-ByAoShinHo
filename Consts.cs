@@ -9,7 +9,8 @@ namespace AoShinhoServ_Monitor
             Map,
             Login,
             Char,
-            Web
+            Web,
+            DevConsole
         };
 
         public class Error

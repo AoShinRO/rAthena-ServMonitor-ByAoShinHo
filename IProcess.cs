@@ -45,7 +45,10 @@ namespace AoShinhoServ_Monitor
                CheckMissingFile(Configuration.CharPath, "char-server.exe") ||
                CheckMissingFile(Configuration.WebPath, "web-server.exe") ||
                CheckMissingFile(Configuration.MapPath, "map-server.exe"))
+            {
+                ErrorHandler.ShowError($"Failed to find Servers", "Missing File");
                 return false;
+            }
 
             return true;
         }
@@ -54,7 +57,6 @@ namespace AoShinhoServ_Monitor
         {
             if (!File.Exists(file) || file == string.Empty)
             {
-                ErrorHandler.ShowError($"File \"{mes}\" at \"{file}\" is missing", "Missing File");
                 return true;
             }
 
@@ -64,24 +66,27 @@ namespace AoShinhoServ_Monitor
         #endregion ValidatePathConfig
 
         public static rAthena.Type GetProcessType(Process rAthenaProcess)
-        {
-            rAthena.Type type;
-            switch (rAthenaProcess.ProcessName.ToLowerInvariant())
+        {               
+            try
             {
-                case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
-                    type = rAthena.Type.Login;
-                    break;
-                case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
-                    type = rAthena.Type.Char;
-                    break;
-                case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
-                    type = rAthena.Type.Web;
-                    break;
-                default:
-                    type = rAthena.Type.Map;
-                    break;
+                switch (rAthenaProcess.ProcessName.ToLowerInvariant())
+                {
+                    case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
+                        return rAthena.Type.Login;
+                    case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
+                        return rAthena.Type.Char;
+                    case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
+                        return rAthena.Type.Web;
+                    case var n when n == GetFileName(Configuration.MapPath).ToLowerInvariant():
+                        return rAthena.Type.Map;
+                    default:
+                        return rAthena.Type.DevConsole;
+                }
             }
-            return type;
+            catch(Exception)
+            {
+                return rAthena.Type.DevConsole;
+            }
         }
     }
 }

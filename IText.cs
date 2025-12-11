@@ -50,7 +50,8 @@ namespace AoShinhoServ_Monitor
             System.Windows.Controls.RichTextBox Char,
             System.Windows.Controls.RichTextBox Login,
             System.Windows.Controls.RichTextBox Map,
-            System.Windows.Controls.RichTextBox Web)
+            System.Windows.Controls.RichTextBox Web,
+            System.Windows.Controls.RichTextBox Dev)
         {
             Brush color = GetWhiteModeColor();
 
@@ -70,6 +71,9 @@ namespace AoShinhoServ_Monitor
 
             Data.Body = "Map Server is Waiting...";
             Starting_Message_sub(Map, Data);
+
+            Data.Body = "Compiler is Waiting...";
+            Starting_Message_sub(Dev, Data);
         }
 
         private static void Starting_Message_sub(System.Windows.Controls.RichTextBox Box, rAthena.Data Data) => Box.Document.Blocks.Add(AppendColoredText(Data));

@@ -94,5 +94,41 @@ namespace AoShinhoServ_Monitor.Properties {
                 this["DebugMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DevMode {
+            get {
+                return ((bool)(this["DevMode"]));
+            }
+            set {
+                this["DevMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseCMake {
+            get {
+                return ((bool)(this["UseCMake"]));
+            }
+            set {
+                this["UseCMake"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PreRenewal {
+            get {
+                return ((bool)(this["PreRenewal"]));
+            }
+            set {
+                this["PreRenewal"] = value;
+            }
+        }
     }
 }

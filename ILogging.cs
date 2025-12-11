@@ -24,6 +24,7 @@ namespace AoShinhoServ_Monitor
         public static Thickness StopMargin { set; get; }
         public static Thickness OptionMargin { set; get; }
         public static Thickness RestartMargin { set; get; }
+        public static Thickness CompileMargin { set; get; }
         public static Thickness OptionSaveMargin { set; get; }
         public static Thickness OptionCancelMargin { set; get; }
         public static rAthena.Data LastErrorLog { set; get; }
