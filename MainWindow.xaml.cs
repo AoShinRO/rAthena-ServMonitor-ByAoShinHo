@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 using NotifyIcon = System.Windows.Forms.NotifyIcon;
 
@@ -55,23 +57,30 @@ namespace AoShinhoServ_Monitor
         }
 
         #region ProcesingInfo
-        public bool Do_Run_All()
+        public async Task<bool> Do_Run_All()
         {
-            RunWithRedirect(Configuration.LoginPath);
-            RunWithRedirect(Configuration.CharPath);
-            RunWithRedirect(Configuration.WebPath);
-            RunWithRedirect(Configuration.MapPath);
-                
+            // Execute todos os processos em paralelo  
+            var tasks = new[]
+            {
+                RunWithRedirectAsync(Configuration.LoginPath),
+                RunWithRedirectAsync(Configuration.CharPath),
+                RunWithRedirectAsync(Configuration.WebPath),
+                RunWithRedirectAsync(Configuration.MapPath)
+            };
+
+            await Task.WhenAll(tasks);
             return true;
         }
 
-        public void RunWithRedirect(string cmdPath)
+        public async Task RunWithRedirectAsync(string cmdPath)
         {
-            try
+            await Task.Run(() =>
             {
-                Process process = new Process()
+                try
                 {
-                    StartInfo =
+                    Process process = new Process()
+                    {
+                        StartInfo =
                         {
                             FileName = cmdPath,
                             UseShellExecute = false,
@@ -79,20 +88,21 @@ namespace AoShinhoServ_Monitor
                             RedirectStandardOutput = true,
                             RedirectStandardError = true
                         },
-                    EnableRaisingEvents = true
-                };
-                process.StartInfo.CreateNoWindow = true;
-                process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
-                process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
-                process.Exited += new EventHandler(Proc_HasExited);
-                process.Start();
-                process.BeginErrorReadLine();
-                process.BeginOutputReadLine();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{ex.Message} {ex.StackTrace}");
-            }
+                        EnableRaisingEvents = true
+                    };
+                    process.StartInfo.CreateNoWindow = true;
+                    process.ErrorDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
+                    process.OutputDataReceived += new DataReceivedEventHandler(Proc_DataReceived);
+                    process.Exited += new EventHandler(Proc_HasExited);
+                    process.Start();
+                    process.BeginErrorReadLine();
+                    process.BeginOutputReadLine();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"{ex.Message} {ex.StackTrace}");
+                }
+            });
         }
 
         private static rAthena.Data ParseServerData(string rawData)
@@ -163,46 +173,48 @@ namespace AoShinhoServ_Monitor
 
         public void Proc_Data2Box(System.Windows.Controls.RichTextBox ThisBox, rAthena.Data Data)
         {
-            Application.Current.Dispatcher?.InvokeAsync(() =>
-            {
-                switch (Data.Header)
+            Application.Current.Dispatcher?.BeginInvoke(
+                DispatcherPriority.Background,
+                (Action)(() => 
                 {
-                    case "[Error]":
-                        ILogging.CounterError++;
-                        lb_error.Text = "Error: " + ILogging.CounterError;
-                        ILogging.Add_ErrorLog(Data);
-                        break;
+                    switch (Data.Header)
+                    {
+                        case "[Error]":
+                            ILogging.CounterError++;
+                            lb_error.Text = "Error: " + ILogging.CounterError;
+                            ILogging.Add_ErrorLog(Data);
+                            break;
 
-                    case "[Debug]":
-                        ILogging.CounterDebug++;
-                        lb_debug.Text = "Debug: " + ILogging.CounterDebug;
-                        ILogging.Add_ErrorLog(Data);
-                        break;
+                        case "[Debug]":
+                            ILogging.CounterDebug++;
+                            lb_debug.Text = "Debug: " + ILogging.CounterDebug;
+                            ILogging.Add_ErrorLog(Data);
+                            break;
 
-                    case "[SQL]":
-                        ILogging.CounterSql++;
-                        lb_sql.Text = "SQL: " + ILogging.CounterSql;
-                        ILogging.Add_ErrorLog(Data);
-                        break;
+                        case "[SQL]":
+                            ILogging.CounterSql++;
+                            lb_sql.Text = "SQL: " + ILogging.CounterSql;
+                            ILogging.Add_ErrorLog(Data);
+                            break;
 
-                    case "[Warning]":
-                        ILogging.CounterWarning++;
-                        lb_warning.Text = "Warning: " + ILogging.CounterWarning;
-                        ILogging.Add_ErrorLog(Data);
-                        break;
+                        case "[Warning]":
+                            ILogging.CounterWarning++;
+                            lb_warning.Text = "Warning: " + ILogging.CounterWarning;
+                            ILogging.Add_ErrorLog(Data);
+                            break;
 
-                    case "[Users]":
-                        string[] playercount = Data.Body.Split(new Char[] { ':' });
-                        lb_online.Text = playercount[2];
-                        ILogging.CounterOnline = short.Parse(lb_online.Text);
-                        ILogging.UpdateContextMenu();
-                        break;
+                        case "[Users]":
+                            string[] playercount = Data.Body.Split(new Char[] { ':' });
+                            lb_online.Text = playercount[2];
+                            ILogging.CounterOnline = short.Parse(lb_online.Text);
+                            ILogging.UpdateContextMenu();
+                            break;
 
-                    default:
-                        break;
-                }
-                ThisBox.Document.Blocks.Add(IText.AppendColoredText(Data));
-            });
+                        default:
+                            break;
+                    }
+                    ThisBox.Document.Blocks.Add(IText.AppendColoredText(Data));
+                }));
         }
 
         public void Proc_HasExited(object sender, EventArgs e)
@@ -326,7 +338,7 @@ namespace AoShinhoServ_Monitor
 
         #region Btn_related
 
-        private void StartBtn_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void StartBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!IProcess.CheckServerPath())
             {
@@ -337,7 +349,7 @@ namespace AoShinhoServ_Monitor
             }
             IProcess.Do_Kill_All();
             Do_Clear_All();
-            if (Do_Run_All())
+            if (await Do_Run_All())
             {
                 ILogging.OnOff = true;
                 StartGrid.Visibility = Visibility.Collapsed;
