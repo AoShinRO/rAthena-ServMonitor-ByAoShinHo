@@ -24,7 +24,7 @@ A Windows desktop application built with **WPF (.NET Framework 4.8.1)** designed
 
 ---
 
-## 📖 Overview
+## Overview
 
 The **rAthena Server Monitor** offers a unified interface to control and observe four core server processes:
 
@@ -40,7 +40,7 @@ It captures and categorizes console output, provides automatic server detection,
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 * Start and stop emulator processes directly from the UI
 * Real-time capture of stdout and stderr
@@ -58,7 +58,7 @@ It captures and categorizes console output, provides automatic server detection,
 
 ---
 
-## 🖥 System Requirements
+## System Requirements
 
 ### Operating System
 
@@ -71,7 +71,7 @@ It captures and categorizes console output, provides automatic server detection,
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 ### 🔧 Build Tools (optional)
 
@@ -105,7 +105,7 @@ Included via .csproj:
 
 ---
 
-## 🔧 Installation
+## Installation
 
 ### 1. Build the Application
 
@@ -137,7 +137,7 @@ Paths are stored automatically once set.
 
 ---
 
-## ➕ Additional Features
+## Additional Features
 
 ### 🔨 CMake Build Support
 
@@ -179,7 +179,7 @@ Automatically identifies the emulator by scanning the solution file:
 
 ---
 
-## 📊 Monitoring Tools
+## Monitoring Tools
 
 * Categorized real-time logs
 * Error, Warning, SQL and Status counters
@@ -192,7 +192,7 @@ Automatically identifies the emulator by scanning the solution file:
 
 ---
 
-## 📝 Notes
+## Notes
 
 * This application is **Windows-only** due to reliance on WPF.
 * ROBrowser, build tools, and proxy components must be installed separately.
