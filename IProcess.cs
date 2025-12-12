@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Net;
 using System.Security.Cryptography;
@@ -11,34 +12,43 @@ namespace AoShinhoServ_Monitor
     public class IProcess
     {
 
-        public static bool KillAll(int ProcessId)
+        public static bool KillAll(int ProcessId, rAthena.Type type)
         {
             try
             {
-                Process.Start(new ProcessStartInfo
+                switch (type)
                 {
-                    FileName = "taskkill",
-                    Arguments = $"/PID {ProcessId} /F /T",
-                    CreateNoWindow = true,
-                    UseShellExecute = false
-                });
+                    case rAthena.Type.WSproxy:
+                    case rAthena.Type.DevConsole:
+                    case rAthena.Type.ROBrowser:
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "taskkill",
+                            Arguments = $"/PID {ProcessId} /F /T",
+                            CreateNoWindow = true,
+                            UseShellExecute = false
+                        });
+                        break;
+                    default:
+                        Process p = Process.GetProcessById(ProcessId);
+                        p.Kill();
+                        break;
+                }
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ErrorHandler.ShowError(ex.Message, $"Failed to kill Process {ProcessId}");
                 return false;
             }
         }
 
         public static bool Do_Kill_All(bool is_serv = false)
         {
-            Parallel.ForEach(ILogging.processesInfos, it => 
-            {
+            Parallel.ForEach(ILogging.processesInfos.ToArray().ToList(), it => {
                 if (!is_serv)
-                {     
-                    KillAll(it.pID);
+                {
                     ILogging.processesInfos.Remove(it);
+                    KillAll(it.pID, it.type);
                 }
                 else
                 {
@@ -49,13 +59,13 @@ namespace AoShinhoServ_Monitor
                         case rAthena.Type.ROBrowser:
                             break;
                         default:
-                            KillAll(it.pID);
                             ILogging.processesInfos.Remove(it);
+                            KillAll(it.pID, it.type);
                             break;
                     }
                 }
             });
-            return true;
+            return false;
         }
 
         public static string GetFileName(string FilePath) => System.IO.Path.GetFileNameWithoutExtension(FilePath);

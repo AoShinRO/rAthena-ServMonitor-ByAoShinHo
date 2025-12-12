@@ -859,7 +859,7 @@ namespace AoShinhoServ_Monitor
             Parallel.ForEach(ILogging.processesInfos, p =>
             {
                 if (p.type == rAthena.Type.ROBrowser)
-                    IProcess.KillAll(p.pID);
+                    IProcess.KillAll(p.pID, p.type);
             });
 
             await Task.Run(() => RunWithRedirectCmdAsync(Configuration.RobPath, "build"));
@@ -870,7 +870,7 @@ namespace AoShinhoServ_Monitor
             Parallel.ForEach(ILogging.processesInfos, p =>
             {
                 if (p.type == rAthena.Type.ROBrowser)
-                    IProcess.KillAll(p.pID);
+                    IProcess.KillAll(p.pID, p.type);
             });
             await Task.Run(() => RunWithRedirectCmdAsync(Configuration.RobPath, "robrowser"));
         }
@@ -881,7 +881,7 @@ namespace AoShinhoServ_Monitor
             Parallel.ForEach(ILogging.processesInfos, p =>
             {
                 if (p.type == rAthena.Type.WSproxy)
-                    IProcess.KillAll(p.pID);
+                    IProcess.KillAll(p.pID, p.type);
             });
             await Task.Run(() => RunWithRedirectCmdAsync("", "wsproxy"));
         }
