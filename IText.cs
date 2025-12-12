@@ -51,7 +51,9 @@ namespace AoShinhoServ_Monitor
             System.Windows.Controls.RichTextBox Login,
             System.Windows.Controls.RichTextBox Map,
             System.Windows.Controls.RichTextBox Web,
-            System.Windows.Controls.RichTextBox Dev)
+            System.Windows.Controls.RichTextBox Dev,
+            System.Windows.Controls.RichTextBox Npm,
+            System.Windows.Controls.RichTextBox wsproxy)
         {
             Brush color = GetWhiteModeColor();
 
@@ -74,6 +76,12 @@ namespace AoShinhoServ_Monitor
 
             Data.Body = "Compiler is Waiting...";
             Starting_Message_sub(Dev, Data);
+
+            Data.Body = "RObrowser is Waiting...";
+            Starting_Message_sub(Npm, Data);
+
+            Data.Body = "wsproxy is Waiting...";
+            Starting_Message_sub(wsproxy, Data);
         }
 
         private static void Starting_Message_sub(System.Windows.Controls.RichTextBox Box, rAthena.Data Data) => Box.Document.Blocks.Add(AppendColoredText(Data));

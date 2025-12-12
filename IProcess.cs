@@ -1,6 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Management;
+using static AoShinhoServ_Monitor.rAthena;
 
 namespace AoShinhoServ_Monitor
 {
@@ -67,26 +69,39 @@ namespace AoShinhoServ_Monitor
 
         public static rAthena.Type GetProcessType(Process rAthenaProcess)
         {               
-            try
+            foreach(var p in ILogging.processesInfos)
             {
-                switch (rAthenaProcess.ProcessName.ToLowerInvariant())
-                {
-                    case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
-                        return rAthena.Type.Login;
-                    case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
-                        return rAthena.Type.Char;
-                    case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
-                        return rAthena.Type.Web;
-                    case var n when n == GetFileName(Configuration.MapPath).ToLowerInvariant():
-                        return rAthena.Type.Map;
-                    default:
-                        return rAthena.Type.DevConsole;
-                }
+                if (p.pID == rAthenaProcess.Id)
+                    return p.type;
             }
-            catch(Exception)
+            switch (rAthenaProcess.ProcessName.ToLowerInvariant())
             {
-                return rAthena.Type.DevConsole;
+                case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
+                    return rAthena.Type.Login;
+                case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
+                    return rAthena.Type.Char;
+                case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
+                    return rAthena.Type.Web;
+                case var n when n == GetFileName(Configuration.MapPath).ToLowerInvariant():
+                    return rAthena.Type.Map;
+                default:
+                    return rAthena.Type.DevConsole;
             }
         }
+
+        public static string GetCommandLine(Process process)
+        {
+            var query = $"SELECT CommandLine FROM Win32_Process WHERE ProcessId = {process.Id}";
+            using (var searcher = new ManagementObjectSearcher(query))
+            using (var objects = searcher.Get())
+            {
+                foreach (var obj in objects)
+                {
+                    return obj["CommandLine"]?.ToString();
+                }
+            }
+            return "";
+        }
+
     }
 }

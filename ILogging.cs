@@ -25,9 +25,14 @@ namespace AoShinhoServ_Monitor
         public static Thickness OptionMargin { set; get; }
         public static Thickness RestartMargin { set; get; }
         public static Thickness CompileMargin { set; get; }
+        public static Thickness StartWSMargin { set; get; }
+        public static Thickness StartROBMargin { set; get; }
+        public static Thickness BuildROBMargin { set; get; }
         public static Thickness OptionSaveMargin { set; get; }
         public static Thickness OptionCancelMargin { set; get; }
         public static rAthena.Data LastErrorLog { set; get; }
+
+        public static List<rAthena.ProcessesInfo> processesInfos = new List<rAthena.ProcessesInfo>();
 
         public static readonly List<rAthena.Error> errorLogs = new List<rAthena.Error>();
 

@@ -1,7 +1,10 @@
 ﻿using Microsoft.Win32;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace AoShinhoServ_Monitor.Forms
 {
@@ -19,6 +22,21 @@ namespace AoShinhoServ_Monitor.Forms
 
         public string OpenPathDialogBox(rAthena.Type type)
         {
+            
+            if (type == rAthena.Type.ROBrowser)
+            {
+                using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+                {
+                    var folderResult = dialog.ShowDialog();
+
+                    if (folderResult == System.Windows.Forms.DialogResult.OK)
+                    {
+                        return dialog.SelectedPath;
+                    }
+                }
+                return Configuration.RobPath;
+            }
+
             OpenFileDialog box;
             switch (type)
             {
@@ -75,6 +93,8 @@ namespace AoShinhoServ_Monitor.Forms
 
         private void CharExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(CharPath, rAthena.Type.Char);
 
+        private void ROBExePath_Click(object sender, RoutedEventArgs e) => SaverAthenaFilePath(ROBPath, rAthena.Type.ROBrowser);
+
         private void SaverAthenaFilePath(TextBox Box,rAthena.Type Types)
         {
             Box.Text = OpenPathDialogBox(Types);
@@ -91,7 +111,9 @@ namespace AoShinhoServ_Monitor.Forms
                 case rAthena.Type.Web:
                     Configuration.WebPath = Box.Text;
                     break;
-
+                case rAthena.Type.ROBrowser:
+                    Configuration.RobPath = Box.Text;
+                    break;
                 default:
                     Configuration.MapPath = Box.Text;
                     break;
@@ -129,6 +151,56 @@ namespace AoShinhoServ_Monitor.Forms
 
         private void PreRenewalMode_Checked(object sender, RoutedEventArgs e)
         {
+
+        }
+
+        private void ROBrowser_Checked(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void ROBrowser_Unchecked(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void WSproxy_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !e.Text.All(char.IsDigit);
+        }
+
+        private void FontSizeUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(FontSizeBox.Text, out int size))
+            {
+                size++;
+                FontSizeBox.Text = size.ToString();
+            }
+            else
+            {
+                FontSizeBox.Text = "12";
+            }
+        }
+
+        private void FontSizeDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(FontSizeBox.Text, out int size))
+            {
+                if (size > 1)
+                    size--;
+
+                FontSizeBox.Text = size.ToString();
+            }
+            else
+            {
+                FontSizeBox.Text = "12";
+            }
+        }
+
+        private void FontSelector_Loaded(object sender, RoutedEventArgs e)
+        {
+            ILogging.OptWin.FontSelector.ItemsSource = Fonts.SystemFontFamilies
+                .Select(f => f.Source)
+                .OrderBy(name => name)
+                .ToList();
 
         }
     }
