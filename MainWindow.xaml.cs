@@ -147,6 +147,7 @@ namespace AoShinhoServ_Monitor
             WSBox.Document.Blocks.Clear();
             ILogging.errorLogs.Clear();
             ILogging.LogWin.LogsRTB.Document.Blocks.Clear();
+            IText.Do_Starting_Message(CharBox, LoginBox, MapBox, WebBox, DevBox, NpmBox, WSBox);
         }
 
         #region ProcesingInfo
@@ -673,7 +674,6 @@ namespace AoShinhoServ_Monitor
             if (!ILogging.OnOff)
             {
                 Do_Clear_All();
-                IText.Do_Starting_Message(CharBox,LoginBox,MapBox,WebBox,DevBox,NpmBox,WSBox);
             }
         }
 
@@ -723,7 +723,6 @@ namespace AoShinhoServ_Monitor
                 return;
             }
             IProcess.Do_Kill_All();
-            Do_Clear_All();
             if (await Do_Run_All())
             {
                 ILogging.OnOff = true;
@@ -754,6 +753,7 @@ namespace AoShinhoServ_Monitor
                 StartGrid.Visibility = Visibility.Visible;
                 RestartGrid.Visibility = Visibility.Collapsed;
             }
+            Do_Clear_All();
         }
 
         private void ShowLogsBtn_Click(object sender, RoutedEventArgs e)
@@ -884,6 +884,12 @@ namespace AoShinhoServ_Monitor
                     IProcess.KillAll(p.pID);
             });
             await Task.Run(() => RunWithRedirectCmdAsync("", "wsproxy"));
+        }
+
+        private void RestartBtn_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Do_Clear_All();
+            StartBtn_MouseDown(sender, e);
         }
     }
 }

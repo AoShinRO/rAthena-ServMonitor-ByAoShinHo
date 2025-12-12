@@ -54,8 +54,8 @@
             </Rectangle>
             <Label x:Name="StartBtn" Content="         Start" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="130,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="StartBtn_MouseDown" MouseEnter="StartBtn_MouseEnter" MouseLeave="StartBtn_MouseLeave" />
         </Grid>
-        <Grid x:Name="RestartGrid" Margin="-123,422,773,116" Visibility="Collapsed">
-            <Rectangle x:Name="Restart_Button" HorizontalAlignment="Left" Height="40" Margin="154,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
+        <Grid x:Name="RestartGrid" Visibility="Collapsed" Margin="-97,0,0,159" HorizontalAlignment="Left" Width="290" Height="58" VerticalAlignment="Bottom">
+            <Rectangle x:Name="Restart_Button" HorizontalAlignment="Left" Height="40" Margin="128,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FFFF9D58" />
@@ -66,7 +66,7 @@
                     <DropShadowEffect Opacity="0.3" ShadowDepth="2.6" BlurRadius="3" />
                 </Rectangle.Effect>
             </Rectangle>
-            <Label x:Name="RestartBtn" Content="       Restart" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="154,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="StartBtn_MouseDown" MouseEnter="RestartBtn_MouseEnter" MouseLeave="RestartBtn_MouseLeave"/>
+            <Label x:Name="RestartBtn" Content="  Restart" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="154,15,0,0" VerticalAlignment="Top" Height="40" Width="154" MouseDown="RestartBtn_MouseDown" MouseEnter="RestartBtn_MouseEnter" MouseLeave="RestartBtn_MouseLeave"/>
         </Grid>
         <Grid x:Name="CompileGrid" Margin="25,0,0,-4" Grid.RowSpan="2" HorizontalAlignment="Left" Width="168" Height="89" VerticalAlignment="Bottom">
             <Rectangle x:Name="Compile_Button" HorizontalAlignment="Left" Height="40" Margin="8,15,0,0" VerticalAlignment="Top" Width="156" RadiusY="5" RadiusX="5">
