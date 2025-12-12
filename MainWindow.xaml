@@ -127,7 +127,7 @@
         <Button x:Name="ShowLogsBtn" Content="Logs" HorizontalAlignment="Left" Margin="23,122,0,0" VerticalAlignment="Top" Width="181" Click="ShowLogsBtn_Click" Height="20" />
         <Label x:Name="xBtn" Content="X" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Top" MouseDown="XBtn_MouseDown" Height="25" Width="16" Margin="0,5,17,0" />
         <Label x:Name="MinimizeBtn" Content="_" FontFamily="Calibri" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,3,43,0" VerticalAlignment="Top" MouseDown="MinimizeBtn_MouseDown" Height="25" Width="16" />
-        <TextBlock HorizontalAlignment="Right" Margin="0,4,59,0" FontSize="14" FontWeight="Bold" Foreground="Black" TextWrapping="Wrap" Text="rAthena Server Monitor By AoShinHo v1.0.5" VerticalAlignment="Top" Height="19" Width="250"/>
+        <TextBlock HorizontalAlignment="Right" Margin="0,4,70,0" FontSize="14" FontWeight="Bold" Foreground="Black" TextWrapping="Wrap" Text="rAthena Server Monitor By AoShinHo v1.0.5" VerticalAlignment="Top" Height="19" Width="293"/>
         <Grid x:Name='ROBGrid' HorizontalAlignment="Left" Width="422" Grid.ColumnSpan="2" Margin="1168,0,0,0" Height="600" VerticalAlignment="Top">
             <RichTextBox x:Name="NpmBox" Margin="2,305,0,0" IsReadOnly="True" Background="Black" VerticalScrollBarVisibility="Visible" TextChanged="RTB_TextChanged" Height="268" VerticalAlignment="Top" HorizontalAlignment="Left" Width="399">
                 <FlowDocument FontSize="14" FontFamily="Calibri" LineHeight="1">
