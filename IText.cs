@@ -1,10 +1,17 @@
-﻿using System.Windows.Documents;
+﻿using System.Text.RegularExpressions;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace AoShinhoServ_Monitor
 {
     public static class IText
     {
+        private static readonly Regex AnsiRegex = new Regex(@"\x1B\[[0-9;]*m", RegexOptions.Compiled);
+
+        public static string RemoveAnsi(string input)
+        {
+            return AnsiRegex.Replace(input, "");
+        }
         public static Run RunColoredText(string text, Brush typeColor)
         {
             Run typeRun = new Run(text);

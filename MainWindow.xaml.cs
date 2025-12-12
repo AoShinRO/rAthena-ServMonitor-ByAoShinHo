@@ -172,7 +172,11 @@ namespace AoShinhoServ_Monitor
                 try
                 {
                     string cmd = cmdPath;
-                    string path = cmd.Substring(0, cmd.LastIndexOf('\\'));
+                    string path = "";
+
+                    if (alias != "wsproxy")
+                        path += cmd.Substring(0, cmd.LastIndexOf('\\'));
+
                     string projectname = path;
                     rAthena.ProcessesInfo info = new rAthena.ProcessesInfo();
 
@@ -185,6 +189,7 @@ namespace AoShinhoServ_Monitor
                                 cmd += " -H";
                             path = cmdPath;
                             info.type = rAthena.Type.ROBrowser;
+
                             break;
                         case "robrowser":
                             if (Properties.Settings.Default.DevMode)
@@ -232,6 +237,9 @@ namespace AoShinhoServ_Monitor
                                 buildProcess.Start();
                                 buildProcess.BeginErrorReadLine();
                                 buildProcess.BeginOutputReadLine();
+                                info.type = rAthena.Type.DevConsole;
+                                info.pID = buildProcess.Id;
+                                ILogging.processesInfos.Add(info);
                                 return;
                             }
                             else
@@ -252,20 +260,17 @@ namespace AoShinhoServ_Monitor
                     }
                     #endregion comandline
 
-                    Process process = new Process()
-                    {
-                        StartInfo =
-                        {
-                            FileName = "cmd.exe",
-                            Arguments = $"/c {cmd}",
-                            UseShellExecute = false,
-                            WorkingDirectory = path,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true
-                        },
-                        EnableRaisingEvents = true
-                    };
+                    Process process = new Process();
+                    process.StartInfo.FileName = "cmd.exe";
+                    process.StartInfo.Arguments = $"/c {cmd}";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.EnableRaisingEvents = true;
 
+                    if (alias != "wsproxy")
+                        process.StartInfo.WorkingDirectory = path;
+                    
                     process.StartInfo.CreateNoWindow = true;
                     process.StartInfo.StandardOutputEncoding = new UTF8Encoding(false);
                     process.StartInfo.StandardErrorEncoding = new UTF8Encoding(false);
@@ -317,6 +322,7 @@ namespace AoShinhoServ_Monitor
         private static rAthena.Data ParseServerData(string rawData)
         {
             var data = new rAthena.Data();
+            rawData = IText.RemoveAnsi(rawData);
             int endIndex = rawData.IndexOf("]");
 
             if (endIndex != -1)
@@ -439,8 +445,13 @@ namespace AoShinhoServ_Monitor
         {
             Application.Current.Dispatcher?.InvokeAsync(() =>
             {
-                switch (IProcess.GetProcessType((Process)sender))
+                Process p = (Process)sender;
+                rAthena.Type type = IProcess.GetProcessType(p);
+                switch (type)
                 {
+                    case rAthena.Type.Map:
+                        MapBox.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
+                        break;
                     case rAthena.Type.Login:
                         LoginBox.AppendText(Environment.NewLine + ">>Login Server - stopped<<");
                         break;
@@ -452,27 +463,21 @@ namespace AoShinhoServ_Monitor
                     case rAthena.Type.Web:
                         WebBox.AppendText(Environment.NewLine + ">>Web Server - stopped<<");
                         break;
-
                     case rAthena.Type.WSproxy:
                         WSBox.AppendText(Environment.NewLine + ">>wsProxy - stopped<<");
                         break;
-
                     case rAthena.Type.ROBrowser:
                         NpmBox.AppendText(Environment.NewLine + ">>ROBrowser - stopped<<");
-                        CompileGrid_Rob.Visibility = Visibility.Visible;
-                        StartROBrowser.Visibility = Visibility.Visible;
                         break;
-
-                    case rAthena.Type.DevConsole:
-                        DevBox.AppendText(Environment.NewLine + ">>Dev Console - stopped<<");
-                        CompileGrid.Visibility = Visibility.Visible;
-                        StartGrid.Visibility = Visibility.Visible;
-                        break;
-
                     default:
-                        MapBox.AppendText(Environment.NewLine + ">>Map Server - stopped<<");
+                        DevBox.AppendText(Environment.NewLine + ">>Dev Console - stopped<<");
                         break;
                 }
+                Parallel.ForEach(ILogging.processesInfos, it =>
+                {
+                    if (it.pID == p.Id)
+                        ILogging.processesInfos.Remove(it);
+                });
             });
         }
 
@@ -562,6 +567,7 @@ namespace AoShinhoServ_Monitor
             range.ApplyPropertyValue(TextElement.FontFamilyProperty, ff);
             range.ApplyPropertyValue(TextElement.FontSizeProperty, fontSize);
         }
+
         private void InitializeNotifyIcon()
         {
             ILogging._notifyIcon = new NotifyIcon
@@ -836,9 +842,6 @@ namespace AoShinhoServ_Monitor
         private async void CompileBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DevBox.Document.Blocks.Clear();
-            CompileGrid.Visibility = Visibility.Collapsed;
-            StartGrid.Visibility = Visibility.Collapsed;
-            RestartGrid.Visibility = Visibility.Collapsed;
             IProcess.Do_Kill_All();
             await Task.Run(() => RunWithRedirectCmdAsync(Configuration.MapPath, "compiler"));
         }
@@ -851,8 +854,6 @@ namespace AoShinhoServ_Monitor
 
         private void StartROBBtn_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(StartROBrowser, ILogging.StartROBMargin);
 
-
-
         private void StartWSBtn_MouseEnter(object sender, MouseEventArgs e) => IAnimation.F_Grid(StartWS_Grid, ILogging.StartWSMargin, true);
 
         private void StartWSBtn_MouseLeave(object sender, MouseEventArgs e) => IAnimation.F_Grid(StartWS_Grid, ILogging.StartWSMargin);
@@ -864,24 +865,33 @@ namespace AoShinhoServ_Monitor
         private async void CompileBtn_Rob_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NpmBox.Document.Blocks.Clear();
-            CompileGrid_Rob.Visibility = Visibility.Collapsed;
-            StartROBrowser.Visibility = Visibility.Collapsed;
-            
+            Parallel.ForEach(ILogging.processesInfos, p =>
+            {
+                if (p.type == rAthena.Type.ROBrowser)
+                    IProcess.KillAll(p.pID);
+            });
+
             await Task.Run(() => RunWithRedirectCmdAsync(Configuration.RobPath, "build"));
         }
         private async void StartROBBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             NpmBox.Document.Blocks.Clear();
-            CompileGrid_Rob.Visibility = Visibility.Collapsed;
-            StartROBrowser.Visibility = Visibility.Collapsed;
-
+            Parallel.ForEach(ILogging.processesInfos, p =>
+            {
+                if (p.type == rAthena.Type.ROBrowser)
+                    IProcess.KillAll(p.pID);
+            });
             await Task.Run(() => RunWithRedirectCmdAsync(Configuration.RobPath, "robrowser"));
         }
 
         private async void StartWSBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             WSBox.Document.Blocks.Clear();
-            StartWS_Grid.Visibility = Visibility.Collapsed;
+            Parallel.ForEach(ILogging.processesInfos, p =>
+            {
+                if (p.type == rAthena.Type.WSproxy)
+                    IProcess.KillAll(p.pID);
+            });
             await Task.Run(() => RunWithRedirectCmdAsync("", "wsproxy"));
         }
     }
