@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Management;
+using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace AoShinhoServ_Monitor
     public class IProcess
     {
 
-        public static void KillAll(int ProcessId)
+        public static bool KillAll(int ProcessId)
         {
             try
             {
@@ -21,20 +22,39 @@ namespace AoShinhoServ_Monitor
                     CreateNoWindow = true,
                     UseShellExecute = false
                 });
+                return true;
             }
             catch (Exception ex)
             {
                 ErrorHandler.ShowError(ex.Message, $"Failed to kill Process {ProcessId}");
+                return false;
             }
         }
 
-        public static bool Do_Kill_All()
+        public static bool Do_Kill_All(bool is_serv = false)
         {
             Parallel.ForEach(ILogging.processesInfos, it => 
             {
-                KillAll(it.pID);
+                if (!is_serv)
+                {     
+                    KillAll(it.pID);
+                    ILogging.processesInfos.Remove(it);
+                }
+                else
+                {
+                    switch (it.type)
+                    {
+                        case rAthena.Type.WSproxy:
+                        case rAthena.Type.DevConsole:
+                        case rAthena.Type.ROBrowser:
+                            break;
+                        default:
+                            KillAll(it.pID);
+                            ILogging.processesInfos.Remove(it);
+                            break;
+                    }
+                }
             });
-            ILogging.processesInfos.Clear();
             return true;
         }
 

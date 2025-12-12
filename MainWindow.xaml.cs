@@ -722,7 +722,7 @@ namespace AoShinhoServ_Monitor
                 RestartGrid.Visibility = Visibility.Collapsed;
                 return;
             }
-            IProcess.Do_Kill_All();
+            IProcess.Do_Kill_All(true);
             if (await Do_Run_All())
             {
                 ILogging.OnOff = true;
@@ -752,8 +752,8 @@ namespace AoShinhoServ_Monitor
                 ILogging.OnOff = false;
                 StartGrid.Visibility = Visibility.Visible;
                 RestartGrid.Visibility = Visibility.Collapsed;
+                Do_Clear_All();
             }
-            Do_Clear_All();
         }
 
         private void ShowLogsBtn_Click(object sender, RoutedEventArgs e)
