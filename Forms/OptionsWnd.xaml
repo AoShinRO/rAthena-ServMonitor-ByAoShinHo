@@ -6,10 +6,11 @@
         xmlns:local="clr-namespace:AoShinhoServ_Monitor.Forms"
         xmlns:properties="clr-namespace:AoShinhoServ_Monitor.Properties"
         mc:Ignorable="d"
-        Title="OptionsWnd" Height="285" Width="270" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" Background="Transparent">
-    <Grid Margin="0,0,0,-203">
-        <Rectangle Fill="AntiqueWhite" RadiusX="10" RadiusY="10" HorizontalAlignment="Left" Height="280" Margin="2,1,0,0" Stroke="Black" VerticalAlignment="Top" Width="270"/>
-        <Grid x:Name="OkayGrid" Margin="-34,211,129,31">
+        Title="OptionsWnd" Height="300" Width="270" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True" Background="Transparent">
+    <Grid>
+        <Rectangle x:Name="BG" Fill="AntiqueWhite" HorizontalAlignment="Left" Height="300" Margin="1,1,0,0" Stroke="Black" VerticalAlignment="Top" Width="270" RadiusY="10" RadiusX="10"/>
+
+        <Grid x:Name="OkayGrid" Margin="-34,232,0,0" HorizontalAlignment="Left" Width="179" Height="85" VerticalAlignment="Top">
             <Rectangle x:Name="Okay_Button" HorizontalAlignment="Left" Height="40" Margin="55,15,0,0" VerticalAlignment="Top" Width="112" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -23,7 +24,7 @@
             </Rectangle>
             <Label x:Name="Okaylbl" Content="    Okay" FontSize="24" FontWeight="Bold" FontFamily="Calibri" HorizontalAlignment="Left" Margin="55,15,0,0" VerticalAlignment="Top" Height="40" Width="112" MouseDown="Okaylbl_MouseDown" />
         </Grid>
-        <Grid x:Name="CancelGrid" Margin="86,211,-98,31">
+        <Grid x:Name="CancelGrid" Margin="86,232,0,0" HorizontalAlignment="Left" Width="190" Height="85" VerticalAlignment="Top">
             <Rectangle x:Name="Cancel" HorizontalAlignment="Left" Height="40" Margin="55,15,0,0" VerticalAlignment="Top" Width="112" RadiusY="5" RadiusX="5">
                 <Rectangle.Fill>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -49,10 +50,47 @@
         <Button x:Name="WebExePath" Content="..." HorizontalAlignment="Left" Margin="234,94,0,0" VerticalAlignment="Top" Height="18" Width="23"  Click="WebExePath_Click" />
         <TextBox x:Name="WebPath" ToolTip="Your Web Path Here" HorizontalAlignment="Left" Margin="57,94,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=WebPath}" VerticalAlignment="Top" Width="174" BorderBrush="#FFB4B4B4"/>
         <Label Content="Web:" HorizontalAlignment="Left" Margin="19,90,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="WhiteMode" ToolTip="Change Text Box Collors" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode" HorizontalAlignment="Left" Margin="31,120,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
-        <CheckBox x:Name="Debug" ToolTip="Ignore Loading Messages[More Faster Output]" IsChecked="{Binding DebugMode, Source={x:Static properties:Settings.Default}}" Content="Skip Loading Messages" HorizontalAlignment="Left" Margin="31,139,0,0" VerticalAlignment="Top" />
+        <CheckBox x:Name="WhiteMode" ToolTip="Change Text Box Collors" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=WhiteMode}" Content="Enable White Mode" HorizontalAlignment="Left" Margin="32,121,0,0" VerticalAlignment="Top" Checked="WhiteMode_Checked" Unchecked="WhiteMode_Unchecked"/>
+        <CheckBox x:Name="Debug" ToolTip="Ignore Loading Messages[More Faster Output]" IsChecked="{Binding DebugMode, Source={x:Static properties:Settings.Default}}" Content="Skip Loading Messages" HorizontalAlignment="Left" Margin="32,139,0,0" VerticalAlignment="Top" />
         <CheckBox x:Name="DevMode" ToolTip="Enable DevMode" IsChecked="{Binding DevMode, Source={x:Static properties:Settings.Default}}" Content="Enable Dev Mode" HorizontalAlignment="Left" Margin="32,176,0,0" VerticalAlignment="Top" Checked="DevMode_Checked" Unchecked="DevMode_Unchecked"/>
         <CheckBox x:Name="CmakeMode" ToolTip="Use CMake instead of MSBuild" IsChecked="{Binding UseCMake, Source={x:Static properties:Settings.Default}}" Content="Use CMake" HorizontalAlignment="Left" Margin="150,176,0,0" VerticalAlignment="Top" Checked="CmakeMode_Checked" Unchecked="CmakeMode_Unchecked" Width="108"/>
         <CheckBox x:Name="PreRenewalMode" ToolTip="Use Pre-Renewal Compilation" IsChecked="{Binding PreRenewal, Source={x:Static properties:Settings.Default}}" Content="PreRenewal" HorizontalAlignment="Left" Margin="93,196,0,0" VerticalAlignment="Top" Checked="PreRenewalMode_Checked" Unchecked="PreRenewalMode_Unchecked" Width="132"/>
+        <CheckBox x:Name="ROBrowser" ToolTip="Enable ROBrowser Mode" IsChecked="{Binding ROBMode, Source={x:Static properties:Settings.Default}}" Content="Enable ROBrowser" HorizontalAlignment="Left" Margin="32,158,0,0" VerticalAlignment="Top" Checked="ROBrowser_Checked" Unchecked="ROBrowser_Unchecked" />
+        <Grid x:Name="ROBGrid" HorizontalAlignment="Left" Width="550" Height="285" VerticalAlignment="Top" Visibility="Collapsed">
+            <Button x:Name="ROBExePath" Content="..." HorizontalAlignment="Left" Margin="511,15,0,0" VerticalAlignment="Top" Height="18" Width="23" Click="ROBExePath_Click"/>
+            <TextBox x:Name="ROBPath" ToolTip="Your ROBrowser Path Here" HorizontalAlignment="Left" Margin="332,15,0,0" TextWrapping="NoWrap" Text="{Binding Source={x:Static properties:Settings.Default}, Path=ROBPath}" VerticalAlignment="Top" Width="174"/>
+            <Label Content="ROBrowser:" Margin="262,10,0,0" HorizontalAlignment="Left" Width="71" Height="26" VerticalAlignment="Top"/>
+            <CheckBox x:Name="RobBuild" ToolTip="Use -O -T checked/Use -O -T -H unchecked" IsChecked="{Binding ROBH, Source={x:Static properties:Settings.Default}}" Content="Compile with -O -T (skip index.html)" HorizontalAlignment="Left" Margin="268,48,0,0" VerticalAlignment="Top" />
+            <TextBox x:Name="WSproxy" ToolTip="Custom wsproxy port" HorizontalAlignment="Left" Margin="332,77,0,0" TextWrapping="NoWrap" InputScope="Number" PreviewTextInput="WSproxy_PreviewTextInput"  Text="{Binding wsport, Source={x:Static properties:Settings.Default}}" VerticalAlignment="Top" Width="174"/>
+            <Label Content="ws:port num" Margin="262,72,0,0" HorizontalAlignment="Left" Width="71" Height="26" VerticalAlignment="Top"/>
+        </Grid>
+        <Label Content="Font:" HorizontalAlignment="Left" Margin="9,216,0,0" VerticalAlignment="Top"/>
+
+        <ComboBox x:Name="FontSelector"
+          Width="150"
+          Height="22"
+          Margin="44,219,0,0"
+          HorizontalAlignment="Left"
+          VerticalAlignment="Top"
+          Loaded="FontSelector_Loaded" Text="{Binding Source={x:Static properties:Settings.Default}, Path=FontFamily}"/>
+        
+
+            <StackPanel Orientation="Horizontal"
+            HorizontalAlignment="Left"
+            Margin="195,219,0,0"
+            VerticalAlignment="Top">
+
+            <TextBox x:Name="FontSizeBox"
+             Width="40"
+             Height="22"
+             Text="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}"
+             PreviewTextInput="WSproxy_PreviewTextInput"/>
+
+                <StackPanel Orientation="Vertical">
+                    <Button Width="20" Height="11" Padding="0" FontSize="5" Click="FontSizeUp_Click">▲</Button>
+                    <Button Width="20" Height="11" Padding="0" FontSize="5" Click="FontSizeDown_Click">▼</Button>
+                </StackPanel>
+            </StackPanel>
+        
     </Grid>
 </Window>

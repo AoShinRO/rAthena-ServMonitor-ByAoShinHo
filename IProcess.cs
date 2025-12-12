@@ -1,37 +1,40 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Management;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace AoShinhoServ_Monitor
 {
     public class IProcess
     {
 
-        public static void KillAll(string ProcessName)
+        public static void KillAll(int ProcessId)
         {
-            Process[] processes;
             try
             {
-                processes = Process.GetProcessesByName(ProcessName);
-                if (processes == null || processes.Length == 0)
-                    return;
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "taskkill",
+                    Arguments = $"/PID {ProcessId} /F /T",
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ErrorHandler.ShowError(ex.Message, $"Failed to find Process {ProcessName}");
-                return;
+                ErrorHandler.ShowError(ex.Message, $"Failed to kill Process {ProcessId}");
             }
-            foreach (Process process in processes)
-                process.Kill();
-            
         }
 
         public static bool Do_Kill_All()
         {
-            KillAll(GetFileName(Configuration.LoginPath));
-            KillAll(GetFileName(Configuration.CharPath));
-            KillAll(GetFileName(Configuration.WebPath));
-            KillAll(GetFileName(Configuration.MapPath));
+            Parallel.ForEach(ILogging.processesInfos, it => 
+            {
+                KillAll(it.pID);
+            });
+            ILogging.processesInfos.Clear();
             return true;
         }
 
@@ -66,26 +69,29 @@ namespace AoShinhoServ_Monitor
         #endregion ValidatePathConfig
 
         public static rAthena.Type GetProcessType(Process rAthenaProcess)
-        {               
-            try
+        {
+            rAthena.Type type = rAthena.Type.DevConsole;
+            Parallel.ForEach(ILogging.processesInfos, it =>
             {
-                switch (rAthenaProcess.ProcessName.ToLowerInvariant())
-                {
-                    case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
-                        return rAthena.Type.Login;
-                    case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
-                        return rAthena.Type.Char;
-                    case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
-                        return rAthena.Type.Web;
-                    case var n when n == GetFileName(Configuration.MapPath).ToLowerInvariant():
-                        return rAthena.Type.Map;
-                    default:
-                        return rAthena.Type.DevConsole;
-                }
-            }
-            catch(Exception)
+                if (it.pID == rAthenaProcess.Id)
+                    type = it.type;
+            });
+
+            if (type != rAthena.Type.DevConsole)
+                return type;
+
+            switch (rAthenaProcess.ProcessName.ToLowerInvariant())
             {
-                return rAthena.Type.DevConsole;
+                case var n when n == GetFileName(Configuration.LoginPath).ToLowerInvariant():
+                    return rAthena.Type.Login;
+                case var n when n == GetFileName(Configuration.CharPath).ToLowerInvariant():
+                    return rAthena.Type.Char;
+                case var n when n == GetFileName(Configuration.WebPath).ToLowerInvariant():
+                    return rAthena.Type.Web;
+                case var n when n == GetFileName(Configuration.MapPath).ToLowerInvariant():
+                    return rAthena.Type.Map;
+                default:
+                    return rAthena.Type.DevConsole;
             }
         }
     }

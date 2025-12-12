@@ -10,13 +10,21 @@ namespace AoShinhoServ_Monitor
             Login,
             Char,
             Web,
-            DevConsole
+            DevConsole,
+            WSproxy,
+            ROBrowser
         };
 
         public class Error
         {
             public string Header;
             public string Body;
+        }
+
+        public class ProcessesInfo
+        {
+            public int pID;
+            public Type type;
         }
 
         public struct Data
