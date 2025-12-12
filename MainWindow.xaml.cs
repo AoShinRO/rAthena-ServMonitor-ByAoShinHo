@@ -641,7 +641,8 @@ namespace AoShinhoServ_Monitor
             if (Properties.Settings.Default.ROBMode)
             {
                 ILogging.OptWin.Width = 550;
-                ILogging.OptWin.BG.Width = Width;
+                ILogging.OptWin.BG.Width = ILogging.OptWin.Width;
+
                 ILogging.OptWin.ROBGrid.Visibility = Visibility.Visible;
             }
             ILogging.OptWin.Show();
