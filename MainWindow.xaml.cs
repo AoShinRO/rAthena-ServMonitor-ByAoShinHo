@@ -25,7 +25,7 @@ namespace AoShinhoServ_Monitor
             InitializeComponent();
             InitializeSubWinComponent();
             InitializeNotifyIcon();
-            GetButtonPosition();
+            AdjustLayout();
             Do_White_Mode();
         }
 
@@ -42,25 +42,43 @@ namespace AoShinhoServ_Monitor
 
             ILogging.OptionCancelMargin = ILogging.OptWin.CancelGrid.Margin;
             ILogging.OptionSaveMargin = ILogging.OptWin.OkayGrid.Margin;
-
+        }
+        private void AdjustLayout()
+        {
             if (!Properties.Settings.Default.DevMode)
             {
                 DevBox.Visibility = Visibility.Collapsed;
                 CompileGrid.Visibility = Visibility.Collapsed;
                 CompileGrid_Rob.Visibility = Visibility.Collapsed;
-                
+                Height = 600;
                 ILogging.OptWin.CmakeMode.Visibility = Visibility.Collapsed;
                 ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Collapsed;
+                if (Properties.Settings.Default.ROBMode)
+                {
+                    DevBox.Width = 935;
+                    CompileGrid_Rob.Visibility = Visibility.Collapsed;
+                }
                 ApplyRoundedCorners(5);
             }
             else
             {
                 Height = 780;
+                CompileGrid.Visibility = Visibility.Visible;
+                DevBox.Visibility = Visibility.Visible;
+
+                ILogging.OptWin.CmakeMode.Visibility = Visibility.Visible;
+                ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Visible;
                 ApplyRoundedCorners(10);
                 if (Properties.Settings.Default.ROBMode)
+                {
                     DevBox.Width = 935 + NpmBox.Width + 8;
+                    CompileGrid_Rob.Visibility = Visibility.Visible;
+                }
                 else
+                {
+                    DevBox.Width = 935;
                     CompileGrid_Rob.Visibility = Visibility.Collapsed;
+                }
             }
 
             if (!Properties.Settings.Default.ROBMode)
@@ -68,20 +86,43 @@ namespace AoShinhoServ_Monitor
                 StartROBrowser.Visibility = Visibility.Collapsed;
                 StartWS_Grid.Visibility = Visibility.Collapsed;
                 ROBGrid.Visibility = Visibility.Collapsed;
-                ApplyRoundedCorners(5);
+                Width = 1200;
+
+                ILogging.OptWin.Width = 270;
+                ILogging.OptWin.BG.Width = ILogging.OptWin.Width;
+                ILogging.OptWin.ROBGrid.Visibility = Visibility.Collapsed;
+                if (!Properties.Settings.Default.DevMode)
+                    ApplyRoundedCorners(5);
+                else
+                    ApplyRoundedCorners(10);
             }
             else
             {
+                StartROBrowser.Visibility = Visibility.Visible;
+                StartWS_Grid.Visibility = Visibility.Visible;
+                ROBGrid.Visibility = Visibility.Visible;
                 Width = 1600;
+
+                ILogging.OptWin.Width = 550;
+                ILogging.OptWin.BG.Width = ILogging.OptWin.Width;
+                ILogging.OptWin.ROBGrid.Visibility = Visibility.Visible;
+
                 ApplyRoundedCorners(10);
-                if(!Properties.Settings.Default.DevMode)
-                    CompileGrid_Rob.Visibility = Visibility.Collapsed;
             }
+
             if (Properties.Settings.Default.FontFamily != string.Empty)
             {
                 ILogging.OptWin.FontSelector.SelectedItem = Properties.Settings.Default.FontFamily;
                 ApplyFontToAll();
             }
+
+            CenterWindowOnScreen();
+            GetButtonPosition();
+        }
+        private void CenterWindowOnScreen()
+        {
+            Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+            Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
         }
 
         #region CoreFunctions
@@ -646,6 +687,9 @@ namespace AoShinhoServ_Monitor
                 ILogging.OptWin.ROBGrid.Visibility = Visibility.Visible;
             }
             ILogging.OptWin.Show();
+            ILogging.OptWin.Topmost = true;
+            ILogging.OptWin.Topmost = false;
+            ILogging.OptWin.Activate();
         }
 
         private void OptionWin_Okay(object sender, RoutedEventArgs e)
@@ -656,71 +700,12 @@ namespace AoShinhoServ_Monitor
 
         private void OptionWin_Cancel(object sender, RoutedEventArgs e) => ILogging.OptWin.Hide();
 
-        private void OptionWin_Do_DevMode_Mode_On(object sender, RoutedEventArgs e)
-        {
-            CompileGrid.Visibility = Visibility.Visible;
-            DevBox.Visibility = Visibility.Visible;
-            
-            ILogging.OptWin.CmakeMode.Visibility = Visibility.Visible;
-            ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Visible;
-            Height = 780;
-            if (Properties.Settings.Default.ROBMode)
-            {
-                DevBox.Width = 935 + NpmBox.Width + 8;
-                CompileGrid_Rob.Visibility = Visibility.Visible;
-            }
-            ApplyRoundedCorners(10);
-        }
+        private void OptionWin_Do_DevMode_Mode_On(object sender, RoutedEventArgs e) => AdjustLayout();
 
-        private void OptionWin_Do_DevMode_Mode_Off(object sender, RoutedEventArgs e)
-        {
-            CompileGrid_Rob.Visibility = Visibility.Collapsed;
-            CompileGrid.Visibility = Visibility.Collapsed;
-            DevBox.Visibility = Visibility.Collapsed;
-            ILogging.OptWin.CmakeMode.Visibility = Visibility.Collapsed;
-            ILogging.OptWin.PreRenewalMode.Visibility = Visibility.Collapsed;
-            Height = 600;
-            if (Properties.Settings.Default.ROBMode)
-            {
-                DevBox.Width = 935;
-                CompileGrid_Rob.Visibility = Visibility.Collapsed;
-            }
-            ApplyRoundedCorners(5);
-        }
-        private void OptionWin_Do_ROBrowser_Mode_On(object sender, RoutedEventArgs e)
-        {
-            StartROBrowser.Visibility = Visibility.Visible;
-            StartWS_Grid.Visibility = Visibility.Visible;
-            ROBGrid.Visibility = Visibility.Visible;
-            Width = 1600;
-            if (Properties.Settings.Default.DevMode)
-            {
-                DevBox.Width = 935 + NpmBox.Width + 8;
-                CompileGrid_Rob.Visibility = Visibility.Visible;
-            }
-            ApplyRoundedCorners(10);
+        private void OptionWin_Do_DevMode_Mode_Off(object sender, RoutedEventArgs e) => AdjustLayout();
+        private void OptionWin_Do_ROBrowser_Mode_On(object sender, RoutedEventArgs e) => AdjustLayout();
 
-            ILogging.OptWin.Width = 550;
-            ILogging.OptWin.BG.Width = ILogging.OptWin.Width;
-            ILogging.OptWin.ROBGrid.Visibility = Visibility.Visible;
-        }
-
-        private void OptionWin_Do_ROBrowser_Mode_Off(object sender, RoutedEventArgs e)
-        {
-            StartROBrowser.Visibility = Visibility.Collapsed;
-            StartWS_Grid.Visibility = Visibility.Collapsed;
-            ROBGrid.Visibility = Visibility.Collapsed;
-            Width = 1200;
-            if (Properties.Settings.Default.DevMode)
-            {
-                DevBox.Width = 935;
-                CompileGrid_Rob.Visibility = Visibility.Collapsed;
-            }
-            ApplyRoundedCorners(5);
-            ILogging.OptWin.Width = 270;
-            ILogging.OptWin.BG.Width = ILogging.OptWin.Width;
-            ILogging.OptWin.ROBGrid.Visibility = Visibility.Collapsed;
-        }
+        private void OptionWin_Do_ROBrowser_Mode_Off(object sender, RoutedEventArgs e) => AdjustLayout();
 
         #endregion OptionWinRelated
 
@@ -778,7 +763,12 @@ namespace AoShinhoServ_Monitor
             {
                 ILogging.LogWin.LogsRTB.AppendText(Environment.NewLine + $"{log.Header} {log.Body}");
             }
+            
             ILogging.LogWin.Show();
+            ILogging.LogWin.Topmost = true;
+            ILogging.LogWin.Topmost = false;
+            ILogging.LogWin.Activate();        
+            
         }
 
         private void BG_MouseDown(object sender, MouseButtonEventArgs e)
