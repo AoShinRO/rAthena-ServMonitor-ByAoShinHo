@@ -44,7 +44,7 @@ namespace AoShinhoServ_Monitor
 
         public static bool Do_Kill_All(bool is_serv = false)
         {
-            Parallel.ForEach(ILogging.processesInfos.ToArray().ToList(), it => {
+            Parallel.ForEach(ILogging.processesInfos.ToArray().ToList(), it =>  {
                 if (!is_serv)
                 {
                     ILogging.processesInfos.Remove(it);
@@ -65,7 +65,7 @@ namespace AoShinhoServ_Monitor
                     }
                 }
             });
-            return false;
+            return true;
         }
 
         public static string GetFileName(string FilePath) => System.IO.Path.GetFileNameWithoutExtension(FilePath);

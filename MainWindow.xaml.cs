@@ -127,7 +127,7 @@ namespace AoShinhoServ_Monitor
 
         #region CoreFunctions
 
-        public void Do_Clear_All()
+        public void Do_Clear_All(bool is_serv = false)
         {
             ILogging.CounterDebug = 0;
             ILogging.CounterSql = 0;
@@ -142,12 +142,15 @@ namespace AoShinhoServ_Monitor
             CharBox.Document.Blocks.Clear();
             MapBox.Document.Blocks.Clear();
             WebBox.Document.Blocks.Clear();
-            DevBox.Document.Blocks.Clear();
-            NpmBox.Document.Blocks.Clear();
-            WSBox.Document.Blocks.Clear();
+            if (!is_serv)
+            {
+                DevBox.Document.Blocks.Clear();
+                NpmBox.Document.Blocks.Clear();
+                WSBox.Document.Blocks.Clear();
+                IText.Do_Starting_Message(CharBox, LoginBox, MapBox, WebBox, DevBox, NpmBox, WSBox);
+            }
             ILogging.errorLogs.Clear();
             ILogging.LogWin.LogsRTB.Document.Blocks.Clear();
-            IText.Do_Starting_Message(CharBox, LoginBox, MapBox, WebBox, DevBox, NpmBox, WSBox);
         }
 
         #region ProcesingInfo
@@ -703,6 +706,7 @@ namespace AoShinhoServ_Monitor
         private void OptionWin_Do_DevMode_Mode_On(object sender, RoutedEventArgs e) => AdjustLayout();
 
         private void OptionWin_Do_DevMode_Mode_Off(object sender, RoutedEventArgs e) => AdjustLayout();
+
         private void OptionWin_Do_ROBrowser_Mode_On(object sender, RoutedEventArgs e) => AdjustLayout();
 
         private void OptionWin_Do_ROBrowser_Mode_Off(object sender, RoutedEventArgs e) => AdjustLayout();
@@ -833,7 +837,7 @@ namespace AoShinhoServ_Monitor
         private async void CompileBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DevBox.Document.Blocks.Clear();
-            IProcess.Do_Kill_All();
+            IProcess.Do_Kill_All(true);
             await Task.Run(() => RunWithRedirectCmdAsync(Configuration.MapPath, "compiler"));
         }
 
@@ -888,7 +892,7 @@ namespace AoShinhoServ_Monitor
 
         private void RestartBtn_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Do_Clear_All();
+            Do_Clear_All(true);
             StartBtn_MouseDown(sender, e);
         }
     }
